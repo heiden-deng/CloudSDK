@@ -1,2 +1,2 @@
 # CloudSDK
-Speedy Cloud SDK
+Welcome, this is Speedy Cloud SDK
