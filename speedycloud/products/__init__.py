@@ -92,11 +92,11 @@ class AbstractProductAPI(object):
     #   'secret_key': SECRET_KEY,
     # }
     def __init__(self, access_key, secret_key, protocol='http'):
-        self.host = 'api.speedycloud.cn'
+        self.host = '172.16.10.210:8000'
         self.access_key = access_key
         self.secret_key = secret_key
         self.protocol = protocol
-        self.pool = ConnectionPool.get_instance('api.speedycloud.cn', protocol)
+        self.pool = ConnectionPool.get_instance('172.16.10.210:8000', protocol)
 
     def _encode_params(self, params):
         if params is None:

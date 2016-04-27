@@ -11,7 +11,7 @@ from speedycloud.products.database import DatabaseAPI
 from speedycloud.products.router import RouterAPI
 from speedycloud.products import AbstractProductAPI
 from speedycloud.object_storage.object_storage import ObjectStorageAPI
-from speedycloud.products.porn_censor import CensorAPI
+from speedycloud.products.censor import CensorAPI
 
 
 def create_cloud_server_api(access_key, secret_key):
