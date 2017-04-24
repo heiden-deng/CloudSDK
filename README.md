@@ -1,3 +1,3 @@
 # CloudSDK
 
-Welcome, this is Speedy Cloud SDK  android ios
+Welcome, this is Speedy Cloud SDK
