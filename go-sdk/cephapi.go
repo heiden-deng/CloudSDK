@@ -2,7 +2,6 @@ package main
 
 import (
 	"bufio"
-	//"bytes"
 	"crypto/hmac"
 	"crypto/sha1"
 	"encoding/base64"
@@ -21,7 +20,7 @@ import (
 	"time"
 
 	"./dom4g"
-	"./go-logger/logger"
+	//"./go-logger/logger"
 )
 
 const (
@@ -51,7 +50,6 @@ type AbstractS3API struct {
 	limitValue  int64
 }
 
-//CompleteMultipartUpload
 func (api *AbstractS3API) MakeCompleteXml() string {
 	api.etag.etagMutex.RLock()
 	el_complete := dom4g.NewElement("CompleteMultipartUpload", "")
@@ -128,9 +126,7 @@ func (api *AbstractS3API) createSignString(requestMethod string, contentMd5 stri
 		signacl := "x-amz-acl:" + aclvalue + "\n"
 		signString += signacl
 	}
-	//signString += "x-amz-acl:public-read\n"
 	signString += url
-	//logger.Debug("sign:", signString)
 	return signString
 }
 
@@ -144,7 +140,7 @@ func (api *AbstractS3API) createSign(requestMethod string, contentMd5 string, co
 func (api *AbstractS3API) OpenFile(filepath string) (*os.File, int64, *bufio.Reader) {
 	fi, err := os.Open(filepath)
 	if err != nil {
-		logger.Debug("file open err:", err)
+		fmt.Println("file open err:", err)
 		return nil, int64(0), nil
 	}
 
@@ -156,13 +152,13 @@ func (api *AbstractS3API) OpenFile(filepath string) (*os.File, int64, *bufio.Rea
 func (api *AbstractS3API) FileSize(filepath string) int64 {
 	fi, err := os.Open(filepath)
 	if err != nil {
-		logger.Debug("file open err:", err)
+		fmt.Println("file open err:", err)
 		return int64(0)
 	}
 	defer fi.Close()
 	st, err := fi.Stat()
 	if err != nil {
-		logger.Debug("file Stat err:", err)
+		fmt.Println("file Stat err:", err)
 		return int64(0)
 	}
 	return int64(st.Size())
@@ -214,10 +210,9 @@ func (api *AbstractS3API) _DoBigComplete(url string, method string, _content str
 	compurl := url + "?uploadId=" + api.multiUpload.UploadID
 	respheader, respdata, err = api._Do(compurl, "POST", completexml, false)
 	if err != nil {
-		logger.Debug("big file complete err:", err)
+		fmt.Println("big file complete err:", err)
 		return respheader, "", err
 	}
-	//logger.Debug("big file complete respdata:", respdata)
 	return respheader, respdata, nil
 }
 
@@ -234,7 +229,7 @@ func (api *AbstractS3API) _DoBigPutPart(url string, method string, content strin
 	arretag, ok := respheader["Etag"]
 	if ok {
 		etagvalue := arretag[0]
-		//logger.Debug("_DoBigPutPart ok url:", url, "index:", strindex, "etagvalue:", etagvalue, "content-length:", len(content))
+
 		api.SetEtag(strindex, etagvalue)
 	}
 
@@ -246,19 +241,19 @@ func (api *AbstractS3API) _DoBigPut(url string, method string, content string, i
 	respheader := http.Header{}
 	fi, err1 := os.Open(content)
 	if err1 != nil {
-		logger.Debug("file open err:", err1)
+		fmt.Println("file open err:", err1)
 		return respheader, "", err1
 	}
 	defer fi.Close()
 	st, err2 := fi.Stat()
 	if err2 != nil {
-		logger.Debug("file Stat err:", err2)
+		fmt.Println("file Stat err:", err2)
 		return respheader, "", err2
 	}
 	filesize := int64(st.Size())
 	splitnum := filesize/api.limitValue + 1
 	bufsize := filesize/splitnum + 1
-	//logger.Debug("filesize:", filesize, "api.limitValue:", api.limitValue, "bufsize:", bufsize)
+
 	read_buf := make([]byte, bufsize)
 	var pos int64 = 0
 	var i int64
@@ -273,8 +268,7 @@ func (api *AbstractS3API) _DoBigPut(url string, method string, content string, i
 
 		n, err := fi.ReadAt(read_buf, pos)
 		if err != nil && err != io.EOF {
-			//panic(err)
-			logger.Debug("ReadAt err:", err)
+			fmt.Println("ReadAt err:", err)
 			return respheader, "", err
 		}
 		pos = pos + (int64)(n)
@@ -282,11 +276,9 @@ func (api *AbstractS3API) _DoBigPut(url string, method string, content string, i
 		waitgroup.Add(1)
 		strindex := strconv.Itoa(index)
 		parturl := url + "?partNumber=" + strindex + "&uploadId=" + api.multiUpload.UploadID
-		//logger.Debug("split file read_buf len:", len(read_buf))
 		go api._DoBigPutPart(parturl, "PUT", string(read_buf), false, &waitgroup, strindex)
 		index += 1
 		if n == 0 || pos >= filesize {
-			//logger.Debug("finish read")
 			break
 		}
 	}
@@ -301,22 +293,22 @@ func (api *AbstractS3API) _DoBigInit(url string, method string, content string, 
 	api.SetHeader("Accept-Encoding", "")
 	_, body, err := api._Do(url+"?uploads", "POST", "", false)
 	if err != nil {
-		logger.Debug("InitiateMultipartUploadResult err:", err)
+		fmt.Println("InitiateMultipartUploadResult err:", err)
 		return respheader, "", err
 	} else {
 		var multiUploadmap map[string]MultipartUpload
 		err := json.Unmarshal([]byte(body), &multiUploadmap)
 		if err != nil {
-			logger.Debug("InitiateMultipartUploadResult Unmarshal err:", err, "body:", string(body))
+			fmt.Println("InitiateMultipartUploadResult Unmarshal err:", err, "body:", string(body))
 			return respheader, "", err
 		}
 		value, ok := multiUploadmap[InitiateMultipartUploadResult]
 		if ok {
 			api.SetMultiUpload(value)
-			logger.Debug("InitiateMultipartUploadResult:", value)
+			fmt.Println("InitiateMultipartUploadResult:", value)
 			return respheader, "", nil
 		} else {
-			logger.Debug("InitiateMultipartUploadResult is invalid")
+			fmt.Println("InitiateMultipartUploadResult is invalid")
 			return respheader, "", errors.New("InitiateMultipartUploadResult is invalid")
 		}
 	}
@@ -350,10 +342,9 @@ func (api *AbstractS3API) _Do(url string, method string, _content string, isfile
 		strsize = strconv.FormatInt(int64(contentLength), 10)
 	}
 
-	//request, err := http.NewRequest("PUT", api.host+url, body)
 	request, err := http.NewRequest(method, api.host+url, body)
 	if err != nil {
-		logger.Debug("http.NewRequest err:", err)
+		fmt.Println("http.NewRequest err:", err)
 		return respheader, "", err
 	}
 	requestDate := time.Now().UTC().Format("Mon, 2 Jan 2006 15:04:05 GMT")
@@ -368,7 +359,6 @@ func (api *AbstractS3API) _Do(url string, method string, _content string, isfile
 
 	for k, v := range api.header {
 		request.Header.Set(k, v)
-		//request.Header.Set("x-amz-acl", "public-read")
 	}
 
 	client := http.Client{
@@ -376,213 +366,23 @@ func (api *AbstractS3API) _Do(url string, method string, _content string, isfile
 			Proxy: http.ProxyFromEnvironment,
 			Dial: (&net.Dialer{
 				Timeout: 30 * time.Second,
-				//Deadline:  time.Now().Add(3 * time.Second),
-				//KeepAlive: 2 * time.Second,
 			}).Dial,
 			TLSHandshakeTimeout: 15 * time.Second,
 		},
-		//Timeout: time.Duration(10) * time.Second,
 	}
 	request.Close = true
 	response, err := client.Do(request)
 
 	if err != nil {
-		logger.Debug("client.Do err:", err)
+		fmt.Println("client.Do err:", err)
 		return respheader, "", err
 	}
 	defer response.Body.Close()
 	respdata, err := ioutil.ReadAll(response.Body)
 	if err != nil {
-		logger.Debug("ioutil.ReadAll err:", err)
+		fmt.Println("ioutil.ReadAll err:", err)
 		return respheader, "", err
 	}
 	respheader = response.Header
 	return respheader, string(respdata), nil
-}
-
-/*
-func (api AbstractS3API) Get(url string) (string, error) {
-	request, err := http.NewRequest("GET", api.host+url, nil)
-	if err != nil {
-		return "", err
-	}
-	requestDate := time.Now().UTC().Format("Mon, 2 Jan 2006 15:04:05 GMT")
-	request.Header.Set("Date", requestDate)
-	sign := api.createSign("GET", "", "", requestDate, url, "")
-	request.Header.Set("Authorization", "AWS "+api.accessKey+":"+sign)
-	client := &http.Client{}
-	response, err := client.Do(request)
-	if err != nil {
-		return "", err
-	}
-	defer response.Body.Close()
-	content, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return "", err
-	}
-	return string(content), nil
-}
-
-func (api AbstractS3API) Put(url string, stream_addr string) (string, error) {
-	fi, err := os.Open(stream_addr)
-	if err != nil {
-		logger.Debug("file open err:", err)
-		return "", err
-	}
-	defer fi.Close()
-	st, _ := fi.Stat()
-	size := strconv.FormatInt(int64(st.Size()), 10)
-	if err != nil {
-		logger.Debug("open err:", err)
-		return "", err
-	}
-
-	data := bufio.NewReader(fi)
-	request, err := http.NewRequest("PUT", api.host+url, data)
-	if err != nil {
-		logger.Debug("http.NewRequest err:", err)
-		return "", err
-	}
-	requestDate := time.Now().UTC().Format("Mon, 2 Jan 2006 15:04:05 GMT")
-	request.ContentLength = st.Size()
-	request.Header.Set("Date", requestDate)
-	sign := api.createSign("PUT", "", "", requestDate, url, size)
-	request.Header.Set("Authorization", "AWS "+api.accessKey+":"+sign)
-	request.Header.Set("Content-Length", size)
-	request.Header.Set("Connection", "close")
-	request.Header.Set("x-amz-acl", "public-read")
-
-	client := http.Client{
-		Transport: &http.Transport{
-			Proxy: http.ProxyFromEnvironment,
-			Dial: (&net.Dialer{
-				Timeout:   2 * time.Second,
-				Deadline:  time.Now().Add(3 * time.Second),
-				KeepAlive: 2 * time.Second,
-			}).Dial,
-			TLSHandshakeTimeout: 2 * time.Second,
-		},
-		Timeout: time.Duration(10) * time.Second,
-	}
-	request.Close = true
-	response, err := client.Do(request)
-
-	if err != nil {
-		logger.Debug("client.Do err:", err)
-		return "", err
-	}
-	defer response.Body.Close()
-	content, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		logger.Debug("ioutil.ReadAll err:", err)
-		return "", err
-	}
-	return string(content), nil
-}
-
-func (api AbstractS3API) PutContent(url string, content string) (string, error) {
-	sr := strings.NewReader(content)
-	data := bufio.NewReader(sr)
-	request, err := http.NewRequest("PUT", api.host+url, data)
-	if err != nil {
-		return "", err
-	}
-	size := strconv.FormatInt(int64(len(content)), 10)
-	//size := int64(len(content))
-	requestDate := time.Now().UTC().Format("Mon, 2 Jan 2006 15:04:05 GMT")
-	request.ContentLength = int64(len(content))
-	request.Header.Set("Date", requestDate)
-	sign := api.createSign("PUT", "", "", requestDate, url, size)
-	request.Header.Set("Authorization", "AWS "+api.accessKey+":"+sign)
-	request.Header.Set("Content-Length", size)
-	request.Header.Set("Connection", "close")
-	request.Header.Set("x-amz-acl", "public-read")
-
-	client := http.Client{
-		Transport: &http.Transport{
-			Proxy: http.ProxyFromEnvironment,
-			Dial: (&net.Dialer{
-				Timeout:   2 * time.Second,
-				Deadline:  time.Now().Add(3 * time.Second),
-				KeepAlive: 2 * time.Second,
-			}).Dial,
-			TLSHandshakeTimeout: 2 * time.Second,
-		},
-		Timeout: time.Duration(10) * time.Second,
-	}
-	request.Close = true
-	response, err := client.Do(request)
-
-	if err != nil {
-		return "", err
-	}
-	defer response.Body.Close()
-	result, err1 := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return "", err1
-	}
-	return string(result), nil
-}
-
-func (api AbstractS3API) PutTest(url string, stream_addr string) (string, error) {
-	fi, err := ioutil.ReadFile(stream_addr)
-	if err != nil {
-		return "", err
-	}
-	buffer := bytes.NewBuffer(fi)
-	size := "11"
-
-	request, err := http.NewRequest("PUT", api.host+url, buffer)
-	if err != nil {
-		return "", err
-	}
-	requestDate := time.Now().UTC().Format("Mon, 2 Jan 2006 15:04:05 GMT")
-	request.Header.Set("Date", requestDate)
-	sign := api.createSign("PUT", "", "", requestDate, url, size)
-	request.Header.Set("Authorization", "AWS "+api.accessKey+":"+sign)
-	client := &http.Client{}
-	response, err := client.Do(request)
-	if err != nil {
-		return "", err
-	}
-	defer response.Body.Close()
-	content, err := ioutil.ReadAll(response.Body)
-	if err != nil {
-		return "", err
-	}
-	return string(content), nil
-}
-*/
-/*
-func CephUpload(m3u8data M3u8MetaData) error {
-	api := AbstractS3API{m3u8data.ObjectStoreVhost, m3u8data.Accesskey, m3u8data.Secretkey, nil}
-
-	var err error
-	if m3u8data.Flag == TagUploadContent {
-		_, err = api.PutContent(m3u8data.ObjectStoreFileName, m3u8data.LocalUploadData)
-	} else if m3u8data.Flag == TagUploadFile {
-		_, err = api.Put(m3u8data.ObjectStoreFileName, m3u8data.LocalUploadData)
-	}
-	return err
-
-}
-*/
-func test_main() {
-	//sr := strings.NewReader("ABCDEFGHIJKLMNOPQRSTUVWXYZ1234567890")
-	//buf := bufio.NewReader(sr, 0)
-	// api := AbstractS3API{"http://172.16.10.200", "41A6839C70E2E842D3AB3C2B84BCECAB", "04b7cb09bc9be85888b245fee13d3e4e05096e29b83fc583dead9e5e550e16fc", nil}
-	// content, err := api.Get("/1.111")
-	// if err != nil {
-	// 	println(err)
-	// } else {
-	// 	println(content)
-	// }
-	//api := AbstractS3API{"http://172.16.10.200", "41A6839C70E2E842D3AB3C2B84BCECAB", "04b7cb09bc9be85888b245fee13d3e4e05096e29b83fc583dead9e5e550e16fc", nil}
-	//content, err := api.Put("/1.111/hahahaha.flv", "/home/haopeng/hahahaha.flv")
-	//content, err := api.PutTest("/1.111/hahahaha.flv", "/home/haopeng/hahahaha.flv")
-	//if err != nil {
-	//	println(err)
-	//} else {
-	//	println(content)
-	//}
 }
