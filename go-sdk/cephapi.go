@@ -39,6 +39,8 @@ type etagmap struct {
 	etag      map[string]string
 }
 
+var headerMutex sync.RWMutex
+
 type AbstractS3API struct {
 	host        string
 	accessKey   string
@@ -121,11 +123,26 @@ func (api *AbstractS3API) createSignString(requestMethod string, contentMd5 stri
 	for _, key := range sortedKeys {
 		signString += fmt.Sprintf("%s:%s\n", strings.ToLower(key), api.metadata[key])
 	}
-	aclvalue, ok := api.header["x-amz-acl"]
-	if ok {
-		signacl := "x-amz-acl:" + aclvalue + "\n"
-		signString += signacl
+	headerMutex.RLock()
+	for headerkey, headervalue := range api.header {
+		if strings.Contains(headerkey, "x-amz-") {
+			sign := headerkey + ":" + headervalue + "\n"
+			signString += sign
+		}
 	}
+	headerMutex.RUnlock()
+	/*
+		aclvalue, ok := api.header["x-amz-acl"]
+		if ok {
+			signacl := "x-amz-acl:" + aclvalue + "\n"
+			signString += signacl
+		}
+		copyvalue, ok := api.header["x-amz-copy-source"]
+		if ok {
+			signcopy := "x-amz-copy-source:" + copyvalue + "\n"
+			signString += signcopy
+		}
+	*/
 	signString += url
 	return signString
 }
