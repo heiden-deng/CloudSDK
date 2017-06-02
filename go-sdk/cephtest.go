@@ -1,8 +1,34 @@
 package main
 
 import (
+	"encoding/json"
 	"fmt"
+	"time"
 )
+
+const (
+	tag_ListBucketResult = "ListBucketResult"
+)
+
+type BucketList struct {
+	MaxKeys     string `json:"MaxKeys"`
+	IsTruncated string `json:"IsTruncated"`
+	Contents    []struct {
+		Key          string    `json:"Key"`
+		LastModified time.Time `json:"LastModified"`
+		ETag         string    `json:"ETag"`
+		Size         string    `json:"Size"`
+		StorageClass string    `json:"StorageClass"`
+		Owner        struct {
+			ID          string `json:"ID"`
+			DisplayName string `json:"DisplayName"`
+		} `json:"Owner"`
+	} `json:"Contents"`
+	Xmlns  string `json:"-xmlns"`
+	Name   string `json:"Name"`
+	Prefix string `json:"Prefix"`
+	Marker string `json:"Marker"`
+}
 
 func main() {
 	//put_file_small()
@@ -14,7 +40,7 @@ func main() {
 	//delete_object()
 	//viewacl()
 	//modifyacl()
-
+	bucketlist()
 }
 
 func bucketlist() {
@@ -23,17 +49,32 @@ func bucketlist() {
 	etag.etag = map[string]string{}
 	multiUpload := MultipartUpload{}
 
-	api := AbstractS3API{"http://cos.speedycloud.org", "5C0FA427C421219C0D67FF372AB71784", "d519b8b1a9c0cc51100ccff69a3f574c87ba2969ab7f8a8f30d243a8d5d7d69b",
+	//api := AbstractS3API{"http://cos.speedycloud.org", "5C0FA427C421219C0D67FF372AB71784", "d519b8b1a9c0cc51100ccff69a3f574c87ba2969ab7f8a8f30d243a8d5d7d69b",
+	//	header, multiUpload, etag, nil, 0}
+	api := AbstractS3API{"http://cos.speedycloud.org", "28DDFEB01FD001BDE491F4C89401347C", "e05df3292e2ee10f75bba30b826042bcba48bc76f74cc1fd3d1f04425a7a5ec1",
 		header, multiUpload, etag, nil, 0}
 	api.SetHeader("Sc-Resp-Content-Type", "application/json")
 	api.SetHeader("Accept-Encoding", "")
-	//api.SetHeader("x-amz-acl", "public-read")
 	isfile := false
-	_, content, err := api.Do("/wangjiyou", "GET", "", isfile)
+	_, content, err := api.Do("/mofang-attachments", "GET", "", isfile)
 	if err != nil {
 		fmt.Println("GET err:", err, "content:", content)
 	} else {
-		fmt.Println("GET success.content:", content)
+		fmt.Println("GET success")
+		listresult := map[string]BucketList{}
+		err := json.Unmarshal([]byte(content), &listresult)
+		if err != nil {
+			fmt.Println("Unmarshal err:", err, "content:", content)
+			return
+		}
+		fmt.Println("Unmarshal success")
+		value, ok := listresult[tag_ListBucketResult]
+		if !ok {
+			fmt.Println("map have not key:", tag_ListBucketResult)
+			return
+		}
+		sum := len(value.Contents)
+		fmt.Println("object sum:", sum)
 	}
 }
 
