@@ -50,6 +50,7 @@ type AbstractS3API struct {
 	etag        etagmap
 	metadata    map[string]string
 	limitValue  int64
+	query       string
 }
 
 func (api *AbstractS3API) MakeCompleteXml() string {
@@ -67,6 +68,10 @@ func (api *AbstractS3API) MakeCompleteXml() string {
 	}
 	api.etag.etagMutex.RUnlock()
 	return el_complete.ToString()
+}
+
+func (api *AbstractS3API) SetQuery(query string) {
+	api.query = query
 }
 
 func (api *AbstractS3API) SetEtag(key string, value string) {
@@ -131,18 +136,7 @@ func (api *AbstractS3API) createSignString(requestMethod string, contentMd5 stri
 		}
 	}
 	headerMutex.RUnlock()
-	/*
-		aclvalue, ok := api.header["x-amz-acl"]
-		if ok {
-			signacl := "x-amz-acl:" + aclvalue + "\n"
-			signString += signacl
-		}
-		copyvalue, ok := api.header["x-amz-copy-source"]
-		if ok {
-			signcopy := "x-amz-copy-source:" + copyvalue + "\n"
-			signString += signcopy
-		}
-	*/
+
 	signString += url
 	return signString
 }
@@ -358,7 +352,13 @@ func (api *AbstractS3API) _Do(url string, method string, _content string, isfile
 	} else {
 		strsize = strconv.FormatInt(int64(contentLength), 10)
 	}
-
+	if strings.Contains(url, "?") {
+		qurl := "&" + api.query
+		url += qurl
+	} else {
+		qurl := "?" + api.query
+		url += qurl
+	}
 	request, err := http.NewRequest(method, api.host+url, body)
 	if err != nil {
 		fmt.Println("http.NewRequest err:", err)
