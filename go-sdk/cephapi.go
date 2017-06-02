@@ -352,14 +352,16 @@ func (api *AbstractS3API) _Do(url string, method string, _content string, isfile
 	} else {
 		strsize = strconv.FormatInt(int64(contentLength), 10)
 	}
+
+	var requesturl string
 	if strings.Contains(url, "?") {
-		qurl := "&" + api.query
-		url += qurl
+		requesturl = api.host + url + "&" + api.query
 	} else {
-		qurl := "?" + api.query
-		url += qurl
+		requesturl = api.host + url + "?" + api.query
 	}
-	request, err := http.NewRequest(method, api.host+url, body)
+
+	//request, err := http.NewRequest(method, api.host+url, body)
+	request, err := http.NewRequest(method, requesturl, body)
 	if err != nil {
 		fmt.Println("http.NewRequest err:", err)
 		return respheader, "", err
