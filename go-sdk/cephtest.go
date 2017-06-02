@@ -13,6 +13,30 @@ func main() {
 	//copy_object()
 	//delete_object()
 	viewacl()
+	fmt.Println("=================================")
+	modifyacl()
+	fmt.Println("=================================")
+	viewacl()
+}
+
+func modifyacl() {
+	header := map[string]string{}
+	etag := etagmap{} //
+	etag.etag = map[string]string{}
+	multiUpload := MultipartUpload{}
+
+	api := AbstractS3API{"http://cos.speedycloud.org", "5C0FA427C421219C0D67FF372AB71784", "d519b8b1a9c0cc51100ccff69a3f574c87ba2969ab7f8a8f30d243a8d5d7d69b",
+		header, multiUpload, etag, nil, 0}
+	api.SetHeader("Sc-Resp-Content-Type", "application/json")
+	api.SetHeader("Accept-Encoding", "")
+	api.SetHeader("x-amz-acl", "public-read")
+	isfile := false
+	_, content, err := api.Do("/wangjiyou/wangjiyou.jpg?acl", "PUT", "", isfile)
+	if err != nil {
+		fmt.Println("GET err:", err, "content:", content)
+	} else {
+		fmt.Println("GET success.content:", content)
+	}
 }
 
 func viewacl() {
@@ -27,7 +51,7 @@ func viewacl() {
 	api.SetHeader("Accept-Encoding", "")
 	//api.SetHeader("x-amz-acl", "public-read")
 	isfile := false
-	_, content, err := api.Do("/wangjiyou/wangjiyou.jpg?acl", "PUT", "", isfile)
+	_, content, err := api.Do("/wangjiyou/wangjiyou.jpg?acl", "GET", "", isfile)
 	if err != nil {
 		fmt.Println("GET err:", err, "content:", content)
 	} else {
