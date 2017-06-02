@@ -72,7 +72,7 @@ func bucketlist() {
 		fmt.Println("Unmarshal success")
 		value, ok := listresult[tag_ListBucketResult]
 		if !ok {
-			fmt.Println("map have not key:", tag_ListBucketResult)
+			fmt.Println("map have not key:", tag_ListBucketResult, " content:", content)
 			return
 		}
 		contents := value.Contents
