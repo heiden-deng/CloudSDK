@@ -3,34 +3,18 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"time"
-)
+	"os"
+	"path/filepath"
+	"strings"
 
-const (
-	tag_ListBucketResult = "ListBucketResult"
+	"./go-logger/logger"
 )
-
-type BucketList struct {
-	MaxKeys     string `json:"MaxKeys"`
-	IsTruncated string `json:"IsTruncated"`
-	Contents    []struct {
-		Key          string    `json:"Key"`
-		LastModified time.Time `json:"LastModified"`
-		ETag         string    `json:"ETag"`
-		Size         string    `json:"Size"`
-		StorageClass string    `json:"StorageClass"`
-		Owner        struct {
-			ID          string `json:"ID"`
-			DisplayName string `json:"DisplayName"`
-		} `json:"Owner"`
-	} `json:"Contents"`
-	Xmlns  string `json:"-xmlns"`
-	Name   string `json:"Name"`
-	Prefix string `json:"Prefix"`
-	Marker string `json:"Marker"`
-}
 
 func main() {
+	logdir := GetCurrentDirectory() + "/log/"
+	logger.SetConsole(true)
+	logger.SetRollingDaily(logdir, "go-sdk.log")
+	logger.SetLevel(logger.DEBUG)
 	//put_file_small()
 	//put_file_big()
 	//put_content()
@@ -40,10 +24,113 @@ func main() {
 	//delete_object()
 	//viewacl()
 	//modifyacl()
+	//bucketlistandsetacl()
 	bucketlist()
+	get_all_keys()
+}
+
+func get_all_keys() {
+	header := map[string]string{}
+	etag := etagmap{} //
+	etag.etag = map[string]string{}
+	multiUpload := MultipartUpload{}
+
+	api := AbstractS3API{"http://cos.speedycloud.org", "5C0FA427C421219C0D67FF372AB71784", "d519b8b1a9c0cc51100ccff69a3f574c87ba2969ab7f8a8f30d243a8d5d7d69b", header, multiUpload, etag, nil, 0, ""}
+	//api := AbstractS3API{"http://cos.speedycloud.org", "28DDFEB01FD001BDE491F4C89401347C", "e05df3292e2ee10f75bba30b826042bcba48bc76f74cc1fd3d1f04425a7a5ec1",header, multiUpload, etag, nil, 0, ""}
+	api.SetHeader("Sc-Resp-Content-Type", "application/json")
+	api.SetHeader("Accept-Encoding", "")
+	var max_keys int = 5
+	var index int = 0
+	var query string = ""
+	for {
+		query = fmt.Sprintf("max-keys=%d&marker=%d", max_keys)
+		//api.SetQuery("max-keys=5&marker=0")
+		api.SetQuery(query)
+		isfile := false
+		bucket := "/wangjiyou"
+		_, content, err := api.Do(bucket, "GET", "", isfile)
+		if err != nil {
+			logger.Debug("GET err:", err, "content:", content)
+		} else {
+			logger.Debug("GET success")
+			listresult := map[string]BucketList{}
+			err := json.Unmarshal([]byte(content), &listresult)
+			if err != nil {
+				logger.Debug("Unmarshal err:", err, "content:", content)
+				return
+			}
+			logger.Debug("Unmarshal success")
+			value, ok := listresult[TagListBucketResult]
+			if !ok {
+				logger.Debug("map have not key:", TagListBucketResult, " content:", content)
+				return
+			}
+			contents := value.Contents
+			sum := len(contents)
+			logger.Debug("object sum:", sum)
+			if sum == 0 {
+				break
+			}
+			i := 0
+			var aclurl string
+			for i = 0; i < sum; i++ {
+				///wangjiyou/wangjiyou.jpg?acl
+				aclurl = bucket + "/" + contents[i].Key + "?acl"
+				//modifyacl(aclurl, i)
+				logger.Debug("object name:", aclurl)
+			}
+			index += max_keys
+		}
+	}
+
 }
 
 func bucketlist() {
+	header := map[string]string{}
+	etag := etagmap{} //
+	etag.etag = map[string]string{}
+	multiUpload := MultipartUpload{}
+
+	api := AbstractS3API{"http://cos.speedycloud.org", "5C0FA427C421219C0D67FF372AB71784", "d519b8b1a9c0cc51100ccff69a3f574c87ba2969ab7f8a8f30d243a8d5d7d69b",
+		header, multiUpload, etag, nil, 0, ""}
+	//api := AbstractS3API{"http://cos.speedycloud.org", "28DDFEB01FD001BDE491F4C89401347C", "e05df3292e2ee10f75bba30b826042bcba48bc76f74cc1fd3d1f04425a7a5ec1",
+	//	header, multiUpload, etag, nil, 0, ""}
+	api.SetHeader("Sc-Resp-Content-Type", "application/json")
+	api.SetHeader("Accept-Encoding", "")
+	api.SetQuery("max-keys=10000")
+	isfile := false
+	bucket := "/wangjiyou"
+	_, content, err := api.Do(bucket, "GET", "", isfile)
+	if err != nil {
+		logger.Debug("GET err:", err, "content:", content)
+	} else {
+		logger.Debug("GET success")
+		listresult := map[string]BucketList{}
+		err := json.Unmarshal([]byte(content), &listresult)
+		if err != nil {
+			logger.Debug("Unmarshal err:", err, "content:", content)
+			return
+		}
+		logger.Debug("Unmarshal success")
+		value, ok := listresult[TagListBucketResult]
+		if !ok {
+			logger.Debug("map have not key:", TagListBucketResult, " content:", content)
+			return
+		}
+		contents := value.Contents
+		sum := len(contents)
+		logger.Debug("object sum:", sum)
+		i := 0
+		var aclurl string
+		for i = 0; i < sum; i++ {
+			///wangjiyou/wangjiyou.jpg?acl
+			aclurl = bucket + "/" + contents[i].Key + "?acl"
+			logger.Debug("object name:", aclurl)
+		}
+	}
+}
+
+func bucketlistandsetacl() {
 	header := map[string]string{}
 	etag := etagmap{} //
 	etag.etag = map[string]string{}
@@ -70,9 +157,9 @@ func bucketlist() {
 			return
 		}
 		fmt.Println("Unmarshal success")
-		value, ok := listresult[tag_ListBucketResult]
+		value, ok := listresult[TagListBucketResult]
 		if !ok {
-			fmt.Println("map have not key:", tag_ListBucketResult, " content:", content)
+			fmt.Println("map have not key:", TagListBucketResult, " content:", content)
 			return
 		}
 		contents := value.Contents
@@ -105,9 +192,9 @@ func modifyacl(url string, index int) {
 	//_, content, err := api.Do("/wangjiyou/wangjiyou.jpg?acl", "PUT", "", isfile)
 	_, content, err := api.Do(url, "PUT", "", isfile)
 	if err != nil {
-		fmt.Println("index:", index, " modifyacl url:", url, " err:", err, "content:", content)
+		logger.Debug("index:", index, " modifyacl url:", url, " err:", err, "content:", content)
 	} else {
-		fmt.Println("*********** index:", index, "  modifyacl url:", url, " success.content:", content, "*********")
+		logger.Debug("*********** index:", index, "  modifyacl url:", url, " success.content:", content, "*********")
 	}
 }
 
@@ -275,4 +362,12 @@ func put_file_big() {
 	} else {
 		fmt.Println("PUT success")
 	}
+}
+
+func GetCurrentDirectory() string {
+	dir, err := filepath.Abs(filepath.Dir(os.Args[0]))
+	if err != nil {
+		return ""
+	}
+	return strings.Replace(dir, "\\", "/", -1)
 }

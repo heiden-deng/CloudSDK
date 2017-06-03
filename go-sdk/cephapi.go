@@ -25,7 +25,28 @@ import (
 
 const (
 	InitiateMultipartUploadResult = "InitiateMultipartUploadResult"
+	TagListBucketResult           = "ListBucketResult"
 )
+
+type BucketList struct {
+	MaxKeys     string `json:"MaxKeys"`
+	IsTruncated string `json:"IsTruncated"`
+	Contents    []struct {
+		Key          string    `json:"Key"`
+		LastModified time.Time `json:"LastModified"`
+		ETag         string    `json:"ETag"`
+		Size         string    `json:"Size"`
+		StorageClass string    `json:"StorageClass"`
+		Owner        struct {
+			ID          string `json:"ID"`
+			DisplayName string `json:"DisplayName"`
+		} `json:"Owner"`
+	} `json:"Contents"`
+	Xmlns  string `json:"-xmlns"`
+	Name   string `json:"Name"`
+	Prefix string `json:"Prefix"`
+	Marker string `json:"Marker"`
+}
 
 type MultipartUpload struct {
 	Bucket   string `json:"Bucket"`
