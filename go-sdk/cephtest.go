@@ -30,6 +30,23 @@ func main() {
 }
 
 func get_all_keys() {
+	var max_keys int = 5
+	var index int = 0
+	for {
+		ret := _get_all_keys(max_keys, index)
+		if -1 == ret {
+			logger.Debug("===========err============")
+			break
+		}
+		if ret != max_keys {
+			logger.Debug("===========ok============")
+			break
+		}
+		index += max_keys
+	}
+}
+
+func _get_all_keys(max_keys int, index int) int {
 	header := map[string]string{}
 	etag := etagmap{} //
 	etag.etag = map[string]string{}
@@ -39,50 +56,46 @@ func get_all_keys() {
 	//api := AbstractS3API{"http://cos.speedycloud.org", "28DDFEB01FD001BDE491F4C89401347C", "e05df3292e2ee10f75bba30b826042bcba48bc76f74cc1fd3d1f04425a7a5ec1",header, multiUpload, etag, nil, 0, ""}
 	api.SetHeader("Sc-Resp-Content-Type", "application/json")
 	api.SetHeader("Accept-Encoding", "")
-	var max_keys int = 5
-	var index int = 0
 	var query string = ""
-	for {
-		query = fmt.Sprintf("max-keys=%d&marker=%d", max_keys)
-		//api.SetQuery("max-keys=5&marker=0")
-		api.SetQuery(query)
-		isfile := false
-		bucket := "/wangjiyou"
-		_, content, err := api.Do(bucket, "GET", "", isfile)
-		if err != nil {
-			logger.Debug("GET err:", err, "content:", content)
-		} else {
-			logger.Debug("GET success")
-			listresult := map[string]BucketList{}
-			err := json.Unmarshal([]byte(content), &listresult)
-			if err != nil {
-				logger.Debug("Unmarshal err:", err, "content:", content)
-				return
-			}
-			logger.Debug("Unmarshal success")
-			value, ok := listresult[TagListBucketResult]
-			if !ok {
-				logger.Debug("map have not key:", TagListBucketResult, " content:", content)
-				return
-			}
-			contents := value.Contents
-			sum := len(contents)
-			logger.Debug("object sum:", sum)
-			if sum == 0 {
-				break
-			}
-			i := 0
-			var aclurl string
-			for i = 0; i < sum; i++ {
-				///wangjiyou/wangjiyou.jpg?acl
-				aclurl = bucket + "/" + contents[i].Key + "?acl"
-				//modifyacl(aclurl, i)
-				logger.Debug("object name:", aclurl)
-			}
-			index += max_keys
-		}
-	}
 
+	query = fmt.Sprintf("max-keys=%d&marker=\"%d\"", max_keys, index)
+	//api.SetQuery("max-keys=5&marker=0")
+	api.SetQuery(query)
+	isfile := false
+	bucket := "/wangjiyou"
+	_, content, err := api.Do(bucket, "GET", "", isfile)
+	if err != nil {
+		logger.Debug("GET err:", err, "content:", content)
+		return -1
+	}
+	logger.Debug("GET success")
+	listresult := map[string]BucketList{}
+	err = json.Unmarshal([]byte(content), &listresult)
+	if err != nil {
+		logger.Debug("Unmarshal err:", err, "content:", content)
+		return -1
+	}
+	logger.Debug("Unmarshal success")
+	value, ok := listresult[TagListBucketResult]
+	if !ok {
+		logger.Debug("map have not key:", TagListBucketResult, " content:", content)
+		return -1
+	}
+	contents := value.Contents
+	sum := len(contents)
+	logger.Debug("object sum:", sum)
+	if sum == 0 {
+		return sum
+	}
+	i := 0
+	var aclurl string
+	for i = 0; i < sum; i++ {
+		///wangjiyou/wangjiyou.jpg?acl
+		aclurl = bucket + "/" + contents[i].Key + "?acl"
+		//modifyacl(aclurl, i)
+		logger.Debug("object name:", aclurl)
+	}
+	return sum
 }
 
 func bucketlist() {
