@@ -44,10 +44,10 @@ func get_all_keys2() int {
 	api.SetHeader("Accept-Encoding", "")
 	//api.SetQuery("max-keys=5&marker=0")
 	//api.SetQuery("max-keys=5")
-	index := 0
+	var marker string = ""
 	for {
-		query := fmt.Sprintf("marker=\"%d\"", index)
-		index += 1
+		query := fmt.Sprintf("marker=%s", marker)
+
 		api.SetQuery(query)
 		isfile := false
 		bucket := "/mofang-attachments"
@@ -75,16 +75,17 @@ func get_all_keys2() int {
 		if sum == 0 {
 			return sum
 		}
-		/*
-			i := 0
-			var aclurl string
-			for i = 0; i < sum; i++ {
-				///wangjiyou/wangjiyou.jpg?acl
-				aclurl = bucket + "/" + contents[i].Key + "?acl"
-				//modifyacl(aclurl, i)
-				logger.Debug("object name:", aclurl)
-			}
-		*/
+
+		i := 0
+		var aclurl string
+		for i = 0; i < sum; i++ {
+			///wangjiyou/wangjiyou.jpg?acl
+			aclurl = bucket + "/" + contents[i].Key + "?acl"
+			//modifyacl(aclurl, i)
+			logger.Debug("object name:", aclurl)
+		}
+		marker = contents[sum-1].Key
+
 	}
 
 	return 0
