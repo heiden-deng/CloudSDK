@@ -42,10 +42,11 @@ func get_all_keys2() int {
 	api.SetHeader("Sc-Resp-Content-Type", "application/json")
 	api.SetHeader("Accept-Encoding", "")
 	//api.SetQuery("max-keys=5&marker=0")
-	//api.SetQuery("max-keys=5")
+	//api.SetQuery("max-keys=10000")
 	var marker string = ""
+	var count int = 0
 	for {
-		query := fmt.Sprintf("marker=%s", marker)
+		query := fmt.Sprintf("max-keys=10000&marker=%s", marker)
 
 		api.SetQuery(query)
 		isfile := false
@@ -53,40 +54,42 @@ func get_all_keys2() int {
 		_, content, err := api.Do(bucket, "GET", "", isfile)
 		if err != nil {
 			logger.Debug("GET err:", err, "content:", content)
-			return -1
+			break
 		}
 		logger.Debug("GET success")
 		listresult := map[string]BucketList{}
 		err = json.Unmarshal([]byte(content), &listresult)
 		if err != nil {
 			logger.Debug("Unmarshal err:", err, "content:", content)
-			return -1
+			break
 		}
 		logger.Debug("Unmarshal success")
 		value, ok := listresult[TagListBucketResult]
 		if !ok {
 			logger.Debug("map have not key:", TagListBucketResult, " content:", content)
-			return -1
+			break
 		}
 		contents := value.Contents
 		sum := len(contents)
 		logger.Debug("object sum:", sum)
 		if sum == 0 {
-			return sum
+			break
 		}
-
-		i := 0
-		var aclurl string
-		for i = 0; i < sum; i++ {
-			///wangjiyou/wangjiyou.jpg?acl
-			aclurl = bucket + "/" + contents[i].Key + "?acl"
-			//modifyacl(aclurl, i)
-			logger.Debug("object name:", aclurl)
-		}
+		/*
+			i := 0
+			var aclurl string
+			for i = 0; i < sum; i++ {
+				///wangjiyou/wangjiyou.jpg?acl
+				aclurl = bucket + "/" + contents[i].Key + "?acl"
+				//modifyacl(aclurl, i)
+				logger.Debug("object name:", aclurl)
+			}
+		*/
+		count += sum
 		marker = contents[sum-1].Key
 
 	}
-
+	logger.Debug("count :", count)
 	return 0
 }
 
