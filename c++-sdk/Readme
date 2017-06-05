@@ -1,1 +1,3 @@
 apt-get install -y libs3-dev
+
+g++ cephapi.cc -ls3 -o ceph
