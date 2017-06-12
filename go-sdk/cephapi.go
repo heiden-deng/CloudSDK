@@ -55,9 +55,9 @@ type MultipartUpload struct {
 	Xmlns    string `json:"-xmlns"`
 }
 
-type etagmap struct {
-	etagMutex sync.RWMutex
-	etag      map[string]string
+type Etagmap struct {
+	EtagMutex sync.RWMutex
+	Etag      map[string]string
 }
 
 var headerMutex sync.RWMutex
@@ -68,16 +68,16 @@ type AbstractS3API struct {
 	secretKey   string
 	header      map[string]string
 	multiUpload MultipartUpload
-	etag        etagmap
+	etag        Etagmap
 	metadata    map[string]string
 	limitValue  int64
 	query       string
 }
 
 func (api *AbstractS3API) MakeCompleteXml() string {
-	api.etag.etagMutex.RLock()
+	api.etag.EtagMutex.RLock()
 	el_complete := dom4g.NewElement("CompleteMultipartUpload", "")
-	for strindex, etagvalue := range api.etag.etag {
+	for strindex, etagvalue := range api.etag.Etag {
 		el_index := dom4g.NewElement("PartNumber", strindex)
 		el_etag := dom4g.NewElement("ETag", etagvalue)
 
@@ -87,7 +87,7 @@ func (api *AbstractS3API) MakeCompleteXml() string {
 
 		el_complete.AddNode(el_part)
 	}
-	api.etag.etagMutex.RUnlock()
+	api.etag.EtagMutex.RUnlock()
 	return el_complete.ToString()
 }
 
@@ -96,18 +96,18 @@ func (api *AbstractS3API) SetQuery(query string) {
 }
 
 func (api *AbstractS3API) SetEtag(key string, value string) {
-	api.etag.etagMutex.Lock()
-	api.etag.etag[key] = value
-	api.etag.etagMutex.Unlock()
+	api.etag.EtagMutex.Lock()
+	api.etag.Etag[key] = value
+	api.etag.EtagMutex.Unlock()
 }
 
 func (api *AbstractS3API) GetEtag(key string, value *string) {
-	api.etag.etagMutex.RLock()
-	v, ok := api.etag.etag[key]
+	api.etag.EtagMutex.RLock()
+	v, ok := api.etag.Etag[key]
 	if ok {
 		*value = v
 	}
-	api.etag.etagMutex.RUnlock()
+	api.etag.EtagMutex.RUnlock()
 }
 
 func (api *AbstractS3API) SetLimitValue(value int64) {

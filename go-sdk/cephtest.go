@@ -32,8 +32,8 @@ func main() {
 
 func get_all_keys2() int {
 	header := map[string]string{}
-	etag := etagmap{} //
-	etag.etag = map[string]string{}
+	etag := Etagmap{} //
+	etag.Etag = map[string]string{}
 	multiUpload := MultipartUpload{}
 
 	//api := AbstractS3API{"http://172.16.10.200", "41A6839C70E2E842D3AB3C2B84BCECAB", "04b7cb09bc9be85888b245fee13d3e4e05096e29b83fc583dead9e5e550e16fc", header, multiUpload, etag, nil, 0, ""}
@@ -95,8 +95,8 @@ func get_all_keys2() int {
 
 func bucketlist() {
 	header := map[string]string{}
-	etag := etagmap{} //
-	etag.etag = map[string]string{}
+	etag := Etagmap{} //
+	etag.Etag = map[string]string{}
 	multiUpload := MultipartUpload{}
 
 	api := AbstractS3API{"http://172.16.10.200", "41A6839C70E2E842D3AB3C2B84BCECAB", "04b7cb09bc9be85888b245fee13d3e4e05096e29b83fc583dead9e5e550e16fc", header, multiUpload, etag, nil, 0, ""}
@@ -142,8 +142,8 @@ func bucketlist() {
 
 func bucketlistandsetacl() {
 	header := map[string]string{}
-	etag := etagmap{} //
-	etag.etag = map[string]string{}
+	etag := Etagmap{} //
+	etag.Etag = map[string]string{}
 	multiUpload := MultipartUpload{}
 
 	//api := AbstractS3API{"http://cos.speedycloud.org", "5C0FA427C421219C0D67FF372AB71784", "d519b8b1a9c0cc51100ccff69a3f574c87ba2969ab7f8a8f30d243a8d5d7d69b",
@@ -187,8 +187,8 @@ func bucketlistandsetacl() {
 
 func modifyacl(url string, index int) {
 	header := map[string]string{}
-	etag := etagmap{} //
-	etag.etag = map[string]string{}
+	etag := Etagmap{} //
+	etag.Etag = map[string]string{}
 	multiUpload := MultipartUpload{}
 
 	//api := AbstractS3API{"http://cos.speedycloud.org", "5C0FA427C421219C0D67FF372AB71784", "d519b8b1a9c0cc51100ccff69a3f574c87ba2969ab7f8a8f30d243a8d5d7d69b",
@@ -210,8 +210,8 @@ func modifyacl(url string, index int) {
 
 func viewacl() {
 	header := map[string]string{}
-	etag := etagmap{} //
-	etag.etag = map[string]string{}
+	etag := Etagmap{} //
+	etag.Etag = map[string]string{}
 	multiUpload := MultipartUpload{}
 
 	api := AbstractS3API{"http://cos.speedycloud.org", "5C0FA427C421219C0D67FF372AB71784", "d519b8b1a9c0cc51100ccff69a3f574c87ba2969ab7f8a8f30d243a8d5d7d69b",
@@ -230,8 +230,8 @@ func viewacl() {
 
 func delete_object() {
 	header := map[string]string{}
-	etag := etagmap{} //
-	etag.etag = map[string]string{}
+	etag := Etagmap{} //
+	etag.Etag = map[string]string{}
 	multiUpload := MultipartUpload{}
 
 	api := AbstractS3API{"http://172.16.10.200", "41A6839C70E2E842D3AB3C2B84BCECAB", "04b7cb09bc9be85888b245fee13d3e4e05096e29b83fc583dead9e5e550e16fc",
@@ -250,8 +250,8 @@ func delete_object() {
 
 func copy_object() {
 	header := map[string]string{}
-	etag := etagmap{} //
-	etag.etag = map[string]string{}
+	etag := Etagmap{} //
+	etag.Etag = map[string]string{}
 	multiUpload := MultipartUpload{}
 
 	api := AbstractS3API{"http://172.16.10.200", "41A6839C70E2E842D3AB3C2B84BCECAB", "04b7cb09bc9be85888b245fee13d3e4e05096e29b83fc583dead9e5e550e16fc",
@@ -270,8 +270,8 @@ func copy_object() {
 
 func get_json() {
 	header := map[string]string{}
-	etag := etagmap{} //
-	etag.etag = map[string]string{}
+	etag := Etagmap{} //
+	etag.Etag = map[string]string{}
 	multiUpload := MultipartUpload{}
 
 	api := AbstractS3API{"http://172.16.10.200", "41A6839C70E2E842D3AB3C2B84BCECAB", "04b7cb09bc9be85888b245fee13d3e4e05096e29b83fc583dead9e5e550e16fc",
@@ -290,8 +290,8 @@ func get_json() {
 
 func get_xml() {
 	header := map[string]string{}
-	etag := etagmap{} //
-	etag.etag = map[string]string{}
+	etag := Etagmap{} //
+	etag.Etag = map[string]string{}
 	multiUpload := MultipartUpload{}
 
 	api := AbstractS3API{"http://172.16.10.200", "41A6839C70E2E842D3AB3C2B84BCECAB", "04b7cb09bc9be85888b245fee13d3e4e05096e29b83fc583dead9e5e550e16fc",
@@ -308,8 +308,8 @@ func get_xml() {
 
 func put_content() {
 	header := map[string]string{}
-	etag := etagmap{} //
-	etag.etag = map[string]string{}
+	etag := Etagmap{} //
+	etag.Etag = map[string]string{}
 	multiUpload := MultipartUpload{}
 
 	api := AbstractS3API{"http://172.16.10.200", "41A6839C70E2E842D3AB3C2B84BCECAB", "04b7cb09bc9be85888b245fee13d3e4e05096e29b83fc583dead9e5e550e16fc",
@@ -330,8 +330,8 @@ func put_content() {
 
 func put_file_small() {
 	header := map[string]string{}
-	etag := etagmap{} //
-	etag.etag = map[string]string{}
+	etag := Etagmap{} //
+	etag.Etag = map[string]string{}
 	multiUpload := MultipartUpload{}
 
 	api := AbstractS3API{"http://172.16.10.200", "41A6839C70E2E842D3AB3C2B84BCECAB", "04b7cb09bc9be85888b245fee13d3e4e05096e29b83fc583dead9e5e550e16fc",
@@ -353,8 +353,8 @@ func put_file_small() {
 
 func put_file_big() {
 	header := map[string]string{}
-	etag := etagmap{} //
-	etag.etag = map[string]string{}
+	etag := Etagmap{} //
+	etag.Etag = map[string]string{}
 	multiUpload := MultipartUpload{}
 
 	api := AbstractS3API{"http://172.16.10.200", "41A6839C70E2E842D3AB3C2B84BCECAB", "04b7cb09bc9be85888b245fee13d3e4e05096e29b83fc583dead9e5e550e16fc",
