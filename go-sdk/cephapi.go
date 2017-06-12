@@ -63,21 +63,21 @@ type Etagmap struct {
 var headerMutex sync.RWMutex
 
 type AbstractS3API struct {
-	host        string
-	accessKey   string
-	secretKey   string
-	header      map[string]string
-	multiUpload MultipartUpload
-	etag        Etagmap
-	metadata    map[string]string
-	limitValue  int64
-	query       string
+	Host        string
+	AccessKey   string
+	SecretKey   string
+	Header      map[string]string
+	MultiUpload MultipartUpload
+	Etag        Etagmap
+	Metadata    map[string]string
+	LimitValue  int64
+	Query       string
 }
 
 func (api *AbstractS3API) MakeCompleteXml() string {
-	api.etag.EtagMutex.RLock()
+	api.Etag.EtagMutex.RLock()
 	el_complete := dom4g.NewElement("CompleteMultipartUpload", "")
-	for strindex, etagvalue := range api.etag.Etag {
+	for strindex, etagvalue := range api.Etag.Etag {
 		el_index := dom4g.NewElement("PartNumber", strindex)
 		el_etag := dom4g.NewElement("ETag", etagvalue)
 
@@ -87,42 +87,42 @@ func (api *AbstractS3API) MakeCompleteXml() string {
 
 		el_complete.AddNode(el_part)
 	}
-	api.etag.EtagMutex.RUnlock()
+	api.Etag.EtagMutex.RUnlock()
 	return el_complete.ToString()
 }
 
 func (api *AbstractS3API) SetQuery(query string) {
-	api.query = query
+	api.Query = query
 }
 
 func (api *AbstractS3API) SetEtag(key string, value string) {
-	api.etag.EtagMutex.Lock()
-	api.etag.Etag[key] = value
-	api.etag.EtagMutex.Unlock()
+	api.Etag.EtagMutex.Lock()
+	api.Etag.Etag[key] = value
+	api.Etag.EtagMutex.Unlock()
 }
 
 func (api *AbstractS3API) GetEtag(key string, value *string) {
-	api.etag.EtagMutex.RLock()
-	v, ok := api.etag.Etag[key]
+	api.Etag.EtagMutex.RLock()
+	v, ok := api.Etag.Etag[key]
 	if ok {
 		*value = v
 	}
-	api.etag.EtagMutex.RUnlock()
+	api.Etag.EtagMutex.RUnlock()
 }
 
 func (api *AbstractS3API) SetLimitValue(value int64) {
-	api.limitValue = value
+	api.LimitValue = value
 }
 
 func (api *AbstractS3API) SetMultiUpload(value MultipartUpload) {
-	api.multiUpload = value
+	api.MultiUpload = value
 }
 
 func (api *AbstractS3API) SetHeader(key string, value string) error {
 	if strings.Contains(key, " ") || strings.Contains(value, " ") {
 		return errors.New("Key and value mustn't contains blank space!")
 	}
-	api.header[key] = value
+	api.Header[key] = value
 	return nil
 }
 
@@ -130,13 +130,13 @@ func (api *AbstractS3API) SetMetadata(key string, value string) error {
 	if strings.Contains(key, " ") || strings.Contains(value, " ") {
 		return errors.New("Key and value mustn't contains blank space!")
 	}
-	api.metadata["X-Amz-Meta-"+strings.Title(key)] = value
+	api.Metadata["X-Amz-Meta-"+strings.Title(key)] = value
 	return nil
 }
 
 func (api *AbstractS3API) sortMetadataKeys() sort.StringSlice {
 	keys := sort.StringSlice{}
-	for key, _ := range api.metadata {
+	for key, _ := range api.Metadata {
 		keys = append(keys, key)
 	}
 	keys.Sort()
@@ -147,10 +147,10 @@ func (api *AbstractS3API) createSignString(requestMethod string, contentMd5 stri
 	signString := requestMethod + "\n" + contentMd5 + "\n" + contentType + "\n" + requestDate + "\n"
 	sortedKeys := api.sortMetadataKeys()
 	for _, key := range sortedKeys {
-		signString += fmt.Sprintf("%s:%s\n", strings.ToLower(key), api.metadata[key])
+		signString += fmt.Sprintf("%s:%s\n", strings.ToLower(key), api.Metadata[key])
 	}
 	headerMutex.RLock()
-	for headerkey, headervalue := range api.header {
+	for headerkey, headervalue := range api.Header {
 		if strings.Contains(headerkey, "x-amz-") {
 			sign := headerkey + ":" + headervalue + "\n"
 			signString += sign
@@ -164,7 +164,7 @@ func (api *AbstractS3API) createSignString(requestMethod string, contentMd5 stri
 
 func (api *AbstractS3API) createSign(requestMethod string, contentMd5 string, contentType string, requestDate string, url string, contentLength string) string {
 	signString := api.createSignString(requestMethod, contentMd5, contentType, requestDate, url, contentLength)
-	mac := hmac.New(sha1.New, []byte(api.secretKey))
+	mac := hmac.New(sha1.New, []byte(api.SecretKey))
 	mac.Write([]byte(signString))
 	return base64.StdEncoding.EncodeToString(mac.Sum(nil))
 }
@@ -204,7 +204,7 @@ func (api *AbstractS3API) Do(url string, method string, content string, isfile b
 	} else {
 		contentlength = int64(len(content))
 	}
-	if contentlength > api.limitValue {
+	if contentlength > api.LimitValue {
 		return api._DoBig(url, method, content, isfile)
 	} else {
 		return api._Do(url, method, content, isfile)
@@ -239,7 +239,7 @@ func (api *AbstractS3API) _DoBigComplete(url string, method string, _content str
 	var err error
 	completexml := api.MakeCompleteXml()
 
-	compurl := url + "?uploadId=" + api.multiUpload.UploadID
+	compurl := url + "?uploadId=" + api.MultiUpload.UploadID
 	respheader, respdata, err = api._Do(compurl, "POST", completexml, false)
 	if err != nil {
 		fmt.Println("big file complete err:", err)
@@ -283,7 +283,7 @@ func (api *AbstractS3API) _DoBigPut(url string, method string, content string, i
 		return respheader, "", err2
 	}
 	filesize := int64(st.Size())
-	splitnum := filesize/api.limitValue + 1
+	splitnum := filesize/api.LimitValue + 1
 	bufsize := filesize/splitnum + 1
 
 	read_buf := make([]byte, bufsize)
@@ -307,7 +307,7 @@ func (api *AbstractS3API) _DoBigPut(url string, method string, content string, i
 
 		waitgroup.Add(1)
 		strindex := strconv.Itoa(index)
-		parturl := url + "?partNumber=" + strindex + "&uploadId=" + api.multiUpload.UploadID
+		parturl := url + "?partNumber=" + strindex + "&uploadId=" + api.MultiUpload.UploadID
 		go api._DoBigPutPart(parturl, "PUT", string(read_buf), false, &waitgroup, strindex)
 		index += 1
 		if n == 0 || pos >= filesize {
@@ -376,12 +376,12 @@ func (api *AbstractS3API) _Do(url string, method string, _content string, isfile
 
 	var requesturl string
 	if strings.Contains(url, "?") {
-		requesturl = api.host + url + "&" + api.query
+		requesturl = api.Host + url + "&" + api.Query
 	} else {
-		requesturl = api.host + url + "?" + api.query
+		requesturl = api.Host + url + "?" + api.Query
 	}
 
-	//request, err := http.NewRequest(method, api.host+url, body)
+	//request, err := http.NewRequest(method, api.Host+url, body)
 	request, err := http.NewRequest(method, requesturl, body)
 	if err != nil {
 		fmt.Println("http.NewRequest err:", err)
@@ -391,13 +391,13 @@ func (api *AbstractS3API) _Do(url string, method string, _content string, isfile
 	request.ContentLength = contentLength
 	request.Header.Set("Date", requestDate)
 	sign := api.createSign(method, "", "", requestDate, url, strsize)
-	request.Header.Set("Authorization", "AWS "+api.accessKey+":"+sign)
+	request.Header.Set("Authorization", "AWS "+api.AccessKey+":"+sign)
 	request.Header.Set("Connection", "close")
 	if len(strsize) != 0 {
 		request.Header.Set("Content-Length", strsize)
 	}
 
-	for k, v := range api.header {
+	for k, v := range api.Header {
 		request.Header.Set(k, v)
 	}
 
