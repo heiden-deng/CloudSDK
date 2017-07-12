@@ -36,9 +36,9 @@ func get_all_keys2() int {
 	etag.Etag = map[string]string{}
 	multiUpload := MultipartUpload{}
 
-	//api := AbstractS3API{"http://172.16.10.200", "41A6839C70E2E842D3AB3C2B84BCECAB", "04b7cb09bc9be85888b245fee13d3e4e05096e29b83fc583dead9e5e550e16fc", header, multiUpload, etag, nil, 0, ""}
+	api := AbstractS3API{"http://172.16.10.200", "41A6839C70E2E842D3AB3C2B84BCECAB", "04b7cb09bc9be85888b245fee13d3e4e05096e29b83fc583dead9e5e550e16fc", header, multiUpload, etag, nil, 0, ""}
 	//api := AbstractS3API{"http://cos.speedycloud.org", "5C0FA427C421219C0D67FF372AB71784", "d519b8b1a9c0cc51100ccff69a3f574c87ba2969ab7f8a8f30d243a8d5d7d69b", header, multiUpload, etag, nil, 0, ""}
-	api := AbstractS3API{"http://cos.speedycloud.org", "28DDFEB01FD001BDE491F4C89401347C", "e05df3292e2ee10f75bba30b826042bcba48bc76f74cc1fd3d1f04425a7a5ec1", header, multiUpload, etag, nil, 0, ""}
+	//api := AbstractS3API{"http://cos.speedycloud.org", "28DDFEB01FD001BDE491F4C89401347C", "e05df3292e2ee10f75bba30b826042bcba48bc76f74cc1fd3d1f04425a7a5ec1", header, multiUpload, etag, nil, 0, ""}
 	api.SetHeader("Sc-Resp-Content-Type", "application/json")
 	api.SetHeader("Accept-Encoding", "")
 	//api.SetQuery("max-keys=5&marker=0")
@@ -46,11 +46,11 @@ func get_all_keys2() int {
 	var marker string = ""
 	var count int = 0
 	for {
-		query := fmt.Sprintf("max-keys=10000&marker=%s", marker)
+		query := fmt.Sprintf("max-keys=2&marker=%s", marker)
 
 		api.SetQuery(query)
 		isfile := false
-		bucket := "/mofang-attachments"
+		bucket := "/lifecycle_test"
 		_, content, err := api.Do(bucket, "GET", "", isfile)
 		if err != nil {
 			logger.Debug("GET err:", err, "content:", content)
@@ -58,10 +58,23 @@ func get_all_keys2() int {
 		}
 		logger.Debug("GET success")
 		listresult := map[string]BucketList{}
+		list_single_result := map[string]BucketListSingle{}
 		err = json.Unmarshal([]byte(content), &listresult)
 		if err != nil {
-			logger.Debug("Unmarshal err:", err, "content:", content)
-			break
+			err = json.Unmarshal([]byte(content), &list_single_result)
+			if err != nil {
+				logger.Debug("Unmarshal err:", err, "content:", content)
+				break
+			}
+			//logger.Debug("object sum:", 1)
+			value, ok := list_single_result[TagListBucketResult]
+			if !ok {
+				logger.Debug("map have not key:", TagListBucketResult, " content:", content)
+				break
+			}
+			count += 1
+			marker = value.Contents.Key
+			continue
 		}
 		logger.Debug("Unmarshal success")
 		value, ok := listresult[TagListBucketResult]

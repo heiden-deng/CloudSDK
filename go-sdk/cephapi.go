@@ -50,6 +50,16 @@ type BucketList struct {
 	Marker      string    `json:"Marker"`
 }
 
+type BucketListSingle struct {
+	MaxKeys     string  `json:"MaxKeys"`
+	IsTruncated string  `json:"IsTruncated"`
+	Contents    Content `json:"Contents"`
+	Xmlns       string  `json:"-xmlns"`
+	Name        string  `json:"Name"`
+	Prefix      string  `json:"Prefix"`
+	Marker      string  `json:"Marker"`
+}
+
 type MultipartUpload struct {
 	Bucket   string `json:"Bucket"`
 	Key      string `json:"Key"`
