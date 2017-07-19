@@ -21,7 +21,7 @@ public class AbstractS3API {
     private SortedMap<String, String> metadata;
 
     public AbstractS3API(String access_key, String secret_key) {
-        this.host = "http://osc.speedycloud.net";
+        this.host = "http://cos.speedycloud.org";
         this.access_key = access_key;
         this.secret_key = secret_key;
         this.metadata = new TreeMap<String, String>();
