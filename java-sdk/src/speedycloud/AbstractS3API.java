@@ -153,7 +153,7 @@ public class AbstractS3API {
             }
             httpURLConnection.setRequestMethod(method);
             httpURLConnection.setDoOutput(true);
-            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy hh:mm:ss zzz");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy hh:mm:ss zzz",Locale.ENGLISH);
             dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
             Date date = new Date();
             String requestDate = dateFormat.format(date);
