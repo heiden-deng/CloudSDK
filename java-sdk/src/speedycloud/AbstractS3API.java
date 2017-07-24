@@ -62,7 +62,7 @@ public class AbstractS3API {
         return encoder.encode(mac.doFinal(data));
     }
 
-    private String putData(String method, String url, String type, String data) {
+    private String putData(String method, String url, String data, String type) {
         try {
             URL localURL = new URL(this.host + url);
             URLConnection connection = localURL.openConnection();
@@ -72,7 +72,7 @@ public class AbstractS3API {
             }
             httpURLConnection.setRequestMethod(method);
             httpURLConnection.setDoOutput(true);
-            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy hh:mm:ss zzz");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy hh:mm:ss zzz",Locale.ENGLISH);
             dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
             Date date = new Date();
             String requestDate = dateFormat.format(date);
