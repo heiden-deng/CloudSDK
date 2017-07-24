@@ -105,8 +105,8 @@ public class AbstractS3API {
                 byte[] digest = md.digest();
                 BASE64Encoder encoder = new BASE64Encoder();
                 String contentMd5 = encoder.encode(digest);
-                httpURLConnection.setRequestProperty("Content-Md5", contentMd5);
-                httpURLConnection.setRequestProperty("Connection", "Keep-Alive");
+                //httpURLConnection.setRequestProperty("Content-Md5", contentMd5);
+                httpURLConnection.setRequestProperty("Connection", "Close");
                 DataOutputStream dataOutputStream = new DataOutputStream(httpURLConnection.getOutputStream());
                 while ((length = fileInputStream.read(buffer)) != -1) {
                     dataOutputStream.write(buffer, 0, length);
@@ -122,7 +122,7 @@ public class AbstractS3API {
                 byte[] digest = md.digest();
                 BASE64Encoder encoder = new BASE64Encoder();
                 String contentMd5 = encoder.encode(digest);
-                httpURLConnection.setRequestProperty("Content-Md5", contentMd5);
+                //httpURLConnection.setRequestProperty("Content-Md5", contentMd5);
                 OutputStream outputStream = httpURLConnection.getOutputStream();
                 outputStream.write(requestStringBytes);
                 outputStream.close();

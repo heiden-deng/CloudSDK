@@ -1,14 +1,15 @@
 import speedycloud.SpeedyCloudS3;
 public class Test {
     public static void main(String[] argc) {
-        SpeedyCloudS3 s3api = new SpeedyCloudS3("25E650EBAFDB46F7AD48719BE22BCA65","de4923209a333d1efc944720c8dbc3f608207030dd5c221e3aca6f27ffc3d47d");
-        String list = s3api.list("frist");
+        SpeedyCloudS3 s3api = new SpeedyCloudS3("705EE33BF78F96C80395184E78C024ED","020f25c3fcf27ccff0213dab8452595b7ffe4313fc14f636dff1a79b893a616c");
+        String list = s3api.list("wangjiyou_test");
         System.out.println(list);
-        String delete = s3api.deleteBucket("course-pdf");
-        System.out.println(delete);
-        String createBucket = s3api.createBucket("course-pdf");
-        System.out.println(createBucket);
-
+        //String delete = s3api.deleteBucket("course-pdf");
+        //System.out.println(delete);
+        //String createBucket = s3api.createBucket("course-pdf");
+        //System.out.println(createBucket);
+        //String putObjectFromFile(String bucket, String key, String path)
+        String put = s3api.putObjectFromFile("wangjiyou_test","aa.txt","/root/wangjiyou.txt");
+        System.out.println(put);
     }
 }
-
