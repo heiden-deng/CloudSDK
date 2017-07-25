@@ -14,5 +14,9 @@ public class Test {
         System.out.println(put);
         String putString = s3api.putObjectFromString("wangjiyou_test","bb.txt","wangjiyou hahahahhahaha");
         System.out.println(putString);
+        String setkeyacl = s3api.updateKeyAcl("wangjiyou_test", "bb.txt", "public-read");
+        System.out.println(setkeyacl);
+        String setbucketacl = s3api.updateBucketAcl("wangjiyou_test",  "public-read");
+        System.out.println("setbucketacl:"+setbucketacl);
     }
 }
