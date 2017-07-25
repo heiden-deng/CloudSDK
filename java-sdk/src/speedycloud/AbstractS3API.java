@@ -9,9 +9,14 @@ import java.net.URL;
 import java.net.URLConnection;
 import java.security.*;
 import java.text.SimpleDateFormat;
-import java.util.*;
 
-import sun.misc.BASE64Encoder;
+import java.util.Base64;
+import java.util.Date;
+import java.util.Locale;
+import java.util.Map;
+import java.util.SortedMap;
+import java.util.TimeZone;
+import java.util.TreeMap;
 
 
 public class AbstractS3API {
@@ -58,8 +63,10 @@ public class AbstractS3API {
         mac.init(secretKey);
         String signString = createSignString(args);
         byte[] data = signString.getBytes();
-        BASE64Encoder encoder = new BASE64Encoder();
-        return encoder.encode(mac.doFinal(data));
+        
+        String value = Base64.getEncoder().encodeToString(mac.doFinal(data));
+        System.out.println(value);
+        return value;
     }
 
     private String putData(String method, String url, String data, String type) {
@@ -72,7 +79,7 @@ public class AbstractS3API {
             }
             httpURLConnection.setRequestMethod(method);
             httpURLConnection.setDoOutput(true);
-            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy hh:mm:ss zzz",Locale.ENGLISH);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz",Locale.ENGLISH);
             dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
             Date date = new Date();
             String requestDate = dateFormat.format(date);
@@ -84,11 +91,11 @@ public class AbstractS3API {
             } catch (NoSuchAlgorithmException e) {
                 return e.getMessage();
             } finally {
-                httpURLConnection.disconnect();
+
             }
             httpURLConnection.setConnectTimeout(10000);
             long contentLength = 0;
-            MessageDigest md = MessageDigest.getInstance("MD5");
+
             if (type.equals("file")) {
                 File file = new File(data);
                 if (file.length() > 1024 * 1024 * 1024) {
@@ -99,13 +106,7 @@ public class AbstractS3API {
                 FileInputStream fileInputStream = new FileInputStream(data);
                 byte[] buffer = new byte[1024];
                 int length = -1;
-                while ((length = fileInputStream.read(buffer)) != -1) {
-                    md.update(buffer, 0, length);
-                }
-                byte[] digest = md.digest();
-                BASE64Encoder encoder = new BASE64Encoder();
-                String contentMd5 = encoder.encode(digest);
-                //httpURLConnection.setRequestProperty("Content-Md5", contentMd5);
+              
                 httpURLConnection.setRequestProperty("Connection", "Close");
                 DataOutputStream dataOutputStream = new DataOutputStream(httpURLConnection.getOutputStream());
                 while ((length = fileInputStream.read(buffer)) != -1) {
@@ -118,11 +119,7 @@ public class AbstractS3API {
                 byte[] requestStringBytes = data.getBytes();
                 contentLength = requestStringBytes.length;
                 httpURLConnection.setRequestProperty("Content-Length", Long.toString(contentLength));
-                md.update(requestStringBytes);
-                byte[] digest = md.digest();
-                BASE64Encoder encoder = new BASE64Encoder();
-                String contentMd5 = encoder.encode(digest);
-                //httpURLConnection.setRequestProperty("Content-Md5", contentMd5);
+
                 OutputStream outputStream = httpURLConnection.getOutputStream();
                 outputStream.write(requestStringBytes);
                 outputStream.close();
@@ -138,8 +135,6 @@ public class AbstractS3API {
             return content;
         } catch (IOException e) {
             return e.getMessage();
-        } catch (NoSuchAlgorithmException e) {
-            return e.getMessage();
         }
     }
 
@@ -153,19 +148,21 @@ public class AbstractS3API {
             }
             httpURLConnection.setRequestMethod(method);
             httpURLConnection.setDoOutput(true);
-            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy hh:mm:ss zzz",Locale.ENGLISH);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz",Locale.ENGLISH);
             dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
             Date date = new Date();
             String requestDate = dateFormat.format(date);
+            System.out.println(requestDate);
             httpURLConnection.setRequestProperty("Date", requestDate);
             try {
                 httpURLConnection.setRequestProperty("Authorization", "AWS " + this.access_key + ":" + createSign(method, "", "", requestDate, url));
-            } catch (InvalidKeyException e) {
+            } 
+            catch (InvalidKeyException e) {
                 return e.getMessage();
             } catch (NoSuchAlgorithmException e) {
                 return e.getMessage();
             } finally {
-                httpURLConnection.disconnect();
+//                httpURLConnection.disconnect();
             }
             httpURLConnection.setConnectTimeout(10000);
             System.out.println(httpURLConnection.getResponseCode());
@@ -193,7 +190,7 @@ public class AbstractS3API {
                 httpURLConnection.setRequestProperty(entry.getKey(), entry.getValue());
             }
             httpURLConnection.setRequestMethod(method);
-            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy hh:mm:ss zzz");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
             dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
             Date date = new Date();
             String requestDate = dateFormat.format(date);

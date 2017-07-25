@@ -1,4 +1,5 @@
-import speedycloud.SpeedyCloudS3;
+package speedycloud;
+
 public class Test {
     public static void main(String[] argc) {
         SpeedyCloudS3 s3api = new SpeedyCloudS3("705EE33BF78F96C80395184E78C024ED","020f25c3fcf27ccff0213dab8452595b7ffe4313fc14f636dff1a79b893a616c");
@@ -9,7 +10,7 @@ public class Test {
         //String createBucket = s3api.createBucket("course-pdf");
         //System.out.println(createBucket);
         //String putObjectFromFile(String bucket, String key, String path)
-        String put = s3api.putObjectFromFile("wangjiyou_test","aa.txt","/root/wangjiyou.txt");
+        String put = s3api.putObjectFromFile("wangjiyou_test","aa.txt","D:\\Java\\jdk1.8.0_141\\LICENSE");
         System.out.println(put);
     }
 }
