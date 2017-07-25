@@ -12,5 +12,7 @@ public class Test {
         //String putObjectFromFile(String bucket, String key, String path)
         String put = s3api.putObjectFromFile("wangjiyou_test","aa.txt","D:\\Java\\jdk1.8.0_141\\LICENSE");
         System.out.println(put);
+        String putString = s3api.putObjectFromString("wangjiyou_test","bb.txt","wangjiyou hahahahhahaha");
+        System.out.println(putString);
     }
 }
