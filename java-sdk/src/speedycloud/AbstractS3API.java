@@ -190,13 +190,14 @@ public class AbstractS3API {
                 httpURLConnection.setRequestProperty(entry.getKey(), entry.getValue());
             }
             httpURLConnection.setRequestMethod(method);
-            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz");
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz",Locale.ENGLISH);
             dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
             Date date = new Date();
             String requestDate = dateFormat.format(date);
             httpURLConnection.setRequestProperty("Date", requestDate);
             try {
-                httpURLConnection.setRequestProperty("Authorization", "AWS " + this.access_key + ":" + createSign(method, "", "", acl, requestDate, url));
+                //httpURLConnection.setRequestProperty("Authorization", "AWS " + this.access_key + ":" + createSign(method, "", "", acl, requestDate, url));
+		httpURLConnection.setRequestProperty("Authorization", "AWS " + this.access_key + ":" + createSign(method, "", "", requestDate,"x-amz-acl:"+acl, url));
             } catch (InvalidKeyException e) {
                 return e.getMessage();
             } catch (NoSuchAlgorithmException e) {
