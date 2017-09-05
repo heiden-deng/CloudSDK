@@ -390,7 +390,11 @@ func (api *AbstractS3API) _Do(url string, method string, _content string, isfile
 	if strings.Contains(url, "?") {
 		requesturl = api.Host + url + "&" + api.Query
 	} else {
-		requesturl = api.Host + url + "?" + api.Query
+		if len(api.Query) == 0 {
+			requesturl = api.Host + url
+		} else {
+			requesturl = api.Host + url + "?" + api.Query
+		}
 	}
 
 	//request, err := http.NewRequest(method, api.Host+url, body)
