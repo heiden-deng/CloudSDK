@@ -7,6 +7,7 @@ import (
 	"path/filepath"
 	"strings"
 
+	"./dom4g"
 	"./go-logger/logger"
 )
 
@@ -26,8 +27,69 @@ func main() {
 	//modifyacl()
 	//bucketlistandsetacl()
 	//bucketlist()
+	parse_xml()
+	//get_all_keys2()
+}
 
-	get_all_keys2()
+func parse_xml() {
+	/*
+		s := `<a Age="10" go="1"><b>wu</b><c name="hi">xiao</c><d>dong</d><d>wxd</d><e><f>hello</f></e></a>`
+		el, _ := dom4g.LoadByXml(s)
+		//获取节点d 单个值
+		//fmt.Println("d:", el.Node("d").Value)
+		//获取节点d 多个值
+		//el.
+		fmt.Println("=========pre=========")
+		for _, elem := range el.Nodes("d") {
+			fmt.Println(elem.Name(), elem.Value)
+		}
+	*/
+
+	s := `<?xml version="1.0" encoding="UTF-8"?>
+		<ListBucketResult xmlns="http://s3.amazonaws.com/doc/2006-03-01/">
+		    <Name>aaa</Name>
+		    <Prefix></Prefix>
+		    <Marker></Marker>
+		    <MaxKeys>1000</MaxKeys>
+		    <IsTruncated>false</IsTruncated>
+		    <Contents>
+		        <Key>boto3.pdf_.speedycloud_trash_flag</Key>
+		        <LastModified>2017-09-11T03:34:58.966Z</LastModified>
+		        <ETag>&quot;56f1189735baf84e914b72815c41c300&quot;</ETag>
+		        <Size>10605522</Size>
+		        <StorageClass>STANDARD</StorageClass>
+		        <Owner>
+		            <ID>user-1</ID>
+		            <DisplayName>jiyou.wang</DisplayName>
+		        </Owner>
+		    </Contents>
+		    <Contents>
+		        <Key>cut.flv</Key>
+		        <LastModified>2017-09-11T06:14:21.482Z</LastModified>
+		        <ETag>&quot;21dcb8bb4aea259d7a15ee60f51ae914&quot;</ETag>
+		        <Size>6203574</Size>
+		        <StorageClass>STANDARD</StorageClass>
+		        <Owner>
+		            <ID>user-1</ID>
+		            <DisplayName>jiyou.wang</DisplayName>
+		        </Owner>
+		    </Contents>
+		</ListBucketResult>`
+	//LoadByStream
+	el, _ := dom4g.LoadByXml(s)
+	el_complete := dom4g.NewElement("ListBucketResult", "")
+	for _, attrs := range el.Attrs {
+		el_complete.AddAttr(attrs.Name(), attrs.Value)
+	}
+
+	for _, elem := range el.Nodes("Contents") {
+		if !strings.Contains(elem.ToString(), ".speedycloud_trash_flag") {
+			//el_complete.AddNode(dom4g.NewElement("Contents", elem.ToString()))
+			el_complete.AddNodeByString(elem.ToString())
+		}
+	}
+
+	fmt.Println(el_complete.ToString())
 }
 
 func get_all_keys2() int {

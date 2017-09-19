@@ -12,6 +12,7 @@ import (
 	"io/ioutil"
 	"net"
 	"net/http"
+	sysurl "net/url"
 	"os"
 	"sort"
 	"strconv"
@@ -208,9 +209,15 @@ func (api *AbstractS3API) FileSize(filepath string) int64 {
 	return int64(st.Size())
 }
 
-func (api *AbstractS3API) Do(url string, method string, content string, isfile bool) (http.Header, string, error) {
+func (api *AbstractS3API) Do(strurl string, method string, content string, isfile bool) (http.Header, string, error) {
 	var contentlength int64
 	respheader := http.Header{}
+	resUri, pErr := sysurl.Parse(strurl)
+	if pErr != nil {
+		return respheader, "", nil
+	}
+	url := fmt.Sprintf("%s", resUri)
+
 	if isfile {
 		contentlength = api.FileSize(content)
 	} else {
@@ -390,10 +397,10 @@ func (api *AbstractS3API) _Do(url string, method string, _content string, isfile
 	if strings.Contains(url, "?") {
 		requesturl = api.Host + url + "&" + api.Query
 	} else {
-		if len(api.Query) == 0 {
-			requesturl = api.Host + url
-		} else {
+		if len(api.Query) != 0 {
 			requesturl = api.Host + url + "?" + api.Query
+		} else {
+			requesturl = api.Host + url
 		}
 	}
 
