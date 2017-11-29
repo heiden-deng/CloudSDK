@@ -67,4 +67,8 @@ public class SpeedyCloudS3 extends AbstractS3API {
     public String updateVersioningKeyAcl(String bucket, String key, String versionId, String acl) {
         return this.requestUpdate("PUT", String.format("/%s/%s?acl&versionId=%s", bucket, key, versionId), acl);
     }
+    /*wangjiyou*/
+    public int IsExsit(String method,String bucket, String key) {
+        return this.requestIsExsit(method, String.format("/%s/%s", bucket, key));
+    }
 }

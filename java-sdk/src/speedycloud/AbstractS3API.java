@@ -12,6 +12,7 @@ import java.text.SimpleDateFormat;
 
 import java.util.Base64;
 import java.util.Date;
+import java.util.List;
 import java.util.Locale;
 import java.util.Map;
 import java.util.SortedMap;
@@ -26,7 +27,7 @@ public class AbstractS3API {
     private SortedMap<String, String> metadata;
 
     public AbstractS3API(String access_key, String secret_key) {
-        this.host = "http://cos.speedycloud.org";
+        this.host = "http://oss-cn-beijing.speedycloud.org";//"http://cos.speedycloud.org";
         this.access_key = access_key;
         this.secret_key = secret_key;
         this.metadata = new TreeMap<String, String>();
@@ -166,6 +167,7 @@ public class AbstractS3API {
             }
             httpURLConnection.setConnectTimeout(10000);
             System.out.println(httpURLConnection.getResponseCode());
+            System.out.println(httpURLConnection.getContentLengthLong());
             BufferedReader reader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream(), "utf-8"));
             String content = "";
             String line;
@@ -218,6 +220,40 @@ public class AbstractS3API {
             return content;
         } catch (IOException e) {
             return e.getMessage();
+        }
+    }
+    
+    public int requestIsExsit(String method, String url) {
+        try {
+            URL localURL = new URL(this.host + url);
+            URLConnection connection = localURL.openConnection();
+            HttpURLConnection httpURLConnection = (HttpURLConnection) connection;
+            for (Map.Entry<String, String> entry : this.metadata.entrySet()) {
+                httpURLConnection.setRequestProperty(entry.getKey(), entry.getValue());
+            }
+            httpURLConnection.setRequestMethod(method);
+            httpURLConnection.setDoOutput(true);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz",Locale.ENGLISH);
+            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+            Date date = new Date();
+            String requestDate = dateFormat.format(date);
+            System.out.println(requestDate);
+            httpURLConnection.setRequestProperty("Date", requestDate);
+            try {
+                httpURLConnection.setRequestProperty("Authorization", "AWS " + this.access_key + ":" + createSign(method, "", "", requestDate, url));
+            } 
+            catch (InvalidKeyException e) {
+                return 0;
+            } catch (NoSuchAlgorithmException e) {
+                return 0;
+            } finally {
+//                httpURLConnection.disconnect();
+            }
+            httpURLConnection.setConnectTimeout(10000);
+            return httpURLConnection.getResponseCode();
+            //return httpURLConnection.getContentLength();
+        } catch (IOException e) {
+            return 0;
         }
     }
 
