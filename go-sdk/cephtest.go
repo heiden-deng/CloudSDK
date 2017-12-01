@@ -16,6 +16,7 @@ func main() {
 	logger.SetConsole(true)
 	logger.SetRollingDaily(logdir, "go-sdk.log")
 	logger.SetLevel(logger.DEBUG)
+	create_bucket()
 	//put_file_small()
 	//put_file_big()
 	//put_content()
@@ -27,7 +28,7 @@ func main() {
 	//modifyacl()
 	//bucketlistandsetacl()
 	//bucketlist()
-	parse_xml()
+	//parse_xml()
 	//get_all_keys2()
 }
 
@@ -408,8 +409,8 @@ func put_file_small() {
 	etag := Etagmap{} //
 	etag.Etag = map[string]string{}
 	multiUpload := MultipartUpload{}
-
-	api := AbstractS3API{"http://172.16.10.200", "41A6839C70E2E842D3AB3C2B84BCECAB", "04b7cb09bc9be85888b245fee13d3e4e05096e29b83fc583dead9e5e550e16fc",
+	sk := "df235c5664509dbe9c4971cdc7119ba3eb0228f1dae44a5e2df5cec378955b27"
+	api := AbstractS3API{"http://103.235.221.75", "8ECF99788044FA255AF79DD05451C451", sk,
 		header, multiUpload, etag, nil, 0, ""}
 	api.SetHeader("x-amz-acl", "public-read")
 	var limit int64
@@ -442,6 +443,29 @@ func put_file_big() {
 
 	osfile := "/wangjiyou/a.mp4"
 	_, content, err := api.Do(osfile, "PUT", "/home/ying/a.mp4", isfile)
+	if err != nil {
+		fmt.Println("PUT err:", err, "content:", content)
+	} else {
+		fmt.Println("PUT success")
+	}
+}
+
+func create_bucket() {
+	header := map[string]string{}
+	etag := Etagmap{} //
+	etag.Etag = map[string]string{}
+	multiUpload := MultipartUpload{}
+	sk := "df235c5664509dbe9c4971cdc7119ba3eb0228f1dae44a5e2df5cec378955b27"
+	api := AbstractS3API{"http://103.235.221.75", "8ECF99788044FA255AF79DD05451C451", sk,
+		header, multiUpload, etag, nil, 0, ""}
+	api.SetHeader("x-amz-acl", "public-read")
+	var limit int64
+	limit = int64(100 * 1024 * 1024)
+	api.SetLimitValue(limit)
+	isfile := false
+
+	osfile := "/wangjiyou"
+	_, content, err := api.Do(osfile, "PUT", "", isfile)
 	if err != nil {
 		fmt.Println("PUT err:", err, "content:", content)
 	} else {

@@ -26,8 +26,10 @@ public class AbstractS3API {
     private String secret_key;
     private SortedMap<String, String> metadata;
 
-    public AbstractS3API(String access_key, String secret_key) {
-        this.host = "http://oss-cn-beijing.speedycloud.org";//"http://cos.speedycloud.org";
+    public AbstractS3API(String host,String access_key, String secret_key) {
+    	//this.host = "http://118.119.254.216";//"http://cos.speedycloud.org";
+        //this.host = "http://103.235.221.75";//"http://cos.speedycloud.org";
+    	this.host = host;
         this.access_key = access_key;
         this.secret_key = secret_key;
         this.metadata = new TreeMap<String, String>();
@@ -256,6 +258,50 @@ public class AbstractS3API {
             return 0;
         }
     }
+    
+    public String requestInitMysql(String method, String data) {
+        try {
+            URL localURL = new URL(this.host);
+            URLConnection connection = localURL.openConnection();
+            HttpURLConnection httpURLConnection = (HttpURLConnection) connection;
+            for (Map.Entry<String, String> entry : this.metadata.entrySet()) {
+                httpURLConnection.setRequestProperty(entry.getKey(), entry.getValue());
+            }
+            httpURLConnection.setRequestMethod(method);
+            httpURLConnection.setDoOutput(true);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz",Locale.ENGLISH);
+            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+            Date date = new Date();
+            String requestDate = dateFormat.format(date);
+            System.out.println(requestDate);
+            httpURLConnection.setRequestProperty("Date", requestDate);
+      
+            byte[] requestStringBytes = data.getBytes();
+            int contentLength = requestStringBytes.length;
+            httpURLConnection.setRequestProperty("Content-Length", Long.toString(contentLength));
+
+            OutputStream outputStream = httpURLConnection.getOutputStream();
+            outputStream.write(requestStringBytes);
+            outputStream.close();
+            
+            
+
+            httpURLConnection.setConnectTimeout(10000);
+            System.out.println(httpURLConnection.getResponseCode());
+            System.out.println(httpURLConnection.getContentLengthLong());
+            BufferedReader reader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream(), "utf-8"));
+            String content = "";
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content += line;
+            }
+            reader.close();
+            httpURLConnection.disconnect();
+            return content;
+        } catch (IOException e) {
+            return e.getMessage();
+        }
+    }    
 
     public String putKeyFromFile(String method, String url, String path) {
         return putData(method, url, path, "file");
