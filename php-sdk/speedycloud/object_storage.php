@@ -83,6 +83,9 @@ class Send_request extends Create_Header {
         if($method=="DELETE") {
             $request = Requests::delete($url, $header);
         }
+        if($method=="POST") {
+            $request = Requests::post($url, $header, $data=$data);
+        }
         return $request->body;
     }
     function upload_big_data_put($method, $path, $data, $params, $host) {
