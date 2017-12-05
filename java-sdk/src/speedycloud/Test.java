@@ -83,11 +83,13 @@ public class Test {
     	返回值：
         200： {"source_id": "404dbfe2-d66a-11e7-a00b-000c29b58aad", "status": "Success"}
          * */
-        String url = "http://oss-cn-beijing.speedycloud.org/video/test1.mp4";
+        String url = "http://oss-cn-beijing.speedycloud.org/centaline/paranora.mp4";
         String address="";
-        String bucket="video";
+        String bucket="centaline";
         String host = "oss-cn-beijing.speedycloud.org";
-        String init = sqlapi.InitMysql( url, address,  bucket, host);
+        String accesskey = "24C30741003ADDCF5A3647F323FFCEEE";
+        String secretkey = "8a6b964b53a870b10f71d85a61a7632a2a813eab60e475fbd5746aab0c233fff";
+        String init = sqlapi.InitMysql( url, address,  bucket, host,accesskey,secretkey);
         System.out.println(init);
         
         
@@ -104,7 +106,8 @@ public class Test {
         //source_id: 上个接口返回的source_id
          * 
          * */
-        String transret=trans.Transcode(init, bucket,host,"480P1,480P2,720P", "106.2.24.10:8080");
+
+        String transret=trans.Transcode(init, bucket,host,"480P1,480P2,720P", "106.2.24.10:8080",accesskey,secretkey);
         System.out.println(transret);
         
     }

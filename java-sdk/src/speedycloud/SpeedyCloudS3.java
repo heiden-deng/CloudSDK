@@ -87,12 +87,14 @@ public class SpeedyCloudS3 extends AbstractS3API {
 
  * */
     
-    public String InitMysql(String url,String address, String bucket,String host) throws JSONException {
+    public String InitMysql(String url,String address, String bucket,String host,String accesskey,String secretkey) throws JSONException {
         JSONObject jsonObject1 = new JSONObject();  
         jsonObject1.put("url", url);  
         jsonObject1.put("address", address);
         jsonObject1.put("bucket", bucket);
         jsonObject1.put("host", host);
+        jsonObject1.put("access_key", accesskey);
+        jsonObject1.put("secret_key", secretkey);
         System.out.println(jsonObject1.toString());  
         return this.requestInitMysql("POST", jsonObject1.toString());
     }
@@ -107,7 +109,7 @@ public class SpeedyCloudS3 extends AbstractS3API {
         //source_id: 上个接口返回的source_id
      * 
      * */
-    public String Transcode(String initresult,String bucket,String host,String resolutions,String callback_url) throws JSONException {
+    public String Transcode(String initresult,String bucket,String host,String resolutions,String callback_url,String accesskey,String secretkey) throws JSONException {
     	JSONObject jsonObject = new JSONObject(initresult);
     	
         JSONObject jsonObject1 = new JSONObject();  
@@ -116,6 +118,8 @@ public class SpeedyCloudS3 extends AbstractS3API {
         jsonObject1.put("resolutions", resolutions);
         jsonObject1.put("callback_url", callback_url);
         jsonObject1.put("source_id", jsonObject.getString("source_id"));
+        jsonObject1.put("access_key", accesskey);
+        jsonObject1.put("secret_key", secretkey);
         System.out.println(jsonObject1.toString());  
         return this.requestInitMysql("POST", jsonObject1.toString());
     }
