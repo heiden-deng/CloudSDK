@@ -1,6 +1,7 @@
 package speedycloud;
 
 import org.json.JSONArray;
+
 import org.json.JSONException;
 import org.json.JSONObject;
 public class SpeedyCloudS3 extends AbstractS3API {
@@ -75,10 +76,16 @@ public class SpeedyCloudS3 extends AbstractS3API {
         return this.requestIsExsit(method, String.format("/%s/%s", bucket, key));
     }
     
-//    public String InitMysql(String body) {
-//    	this.requestInitMysql("POST", body);
-//    	return "";
-//    }
+/*
+ *     参数：
+        url: 已上传到对象存储的对象的ur了（必填）
+        address: 房源的地址
+        bucket: 目标桶
+        host: 目标桶的host
+    	返回值：
+        200： {"source_id": "404dbfe2-d66a-11e7-a00b-000c29b58aad", "status": "Success"}
+
+ * */
     
     public String InitMysql(String url,String address, String bucket,String host) throws JSONException {
         JSONObject jsonObject1 = new JSONObject();  
@@ -92,11 +99,12 @@ public class SpeedyCloudS3 extends AbstractS3API {
     /*
      * transcode
      * 
+     * init: 初始化mysql api的返回值
         bucket: 目标桶
         host: 目标桶的host
         resolutions: 分辨率，多个用“，”分隔，例如：480P1,480P2,720P
         callback_url: 回调url
-        source_id: 上个接口返回的source_id
+        //source_id: 上个接口返回的source_id
      * 
      * */
     public String Transcode(String initresult,String bucket,String host,String resolutions,String callback_url) throws JSONException {

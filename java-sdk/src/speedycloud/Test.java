@@ -11,8 +11,32 @@ public class Test {
         SpeedyCloudS3 s3api = new SpeedyCloudS3("http://118.119.254.216","8ECF99788044FA255AF79DD05451C450","df235c5664509dbe9c4971cdc7119ba3eb0228f1dae44a5e2df5cec378955b26");
     	//SpeedyCloudS3 s3api = new SpeedyCloudS3("8ECF99788044FA255AF79DD05451C451","df235c5664509dbe9c4971cdc7119ba3eb0228f1dae44a5e2df5cec378955b27");
     	//SpeedyCloudS3 s3api = new SpeedyCloudS3("8ECF99788044FA255AF79DD05451C450","df235c5664509dbe9c4971cdc7119ba3eb0228f1dae44a5e2df5cec378955b26");
+        
+        //create bucket 
+        //String createBucket = s3api.createBucket("wangjiyou");
+        //System.out.println(createBucket);
+        
+        //list bucket
     	//String list = s3api.list("wangjiyou");
         //System.out.println(list);
+
+        //put file
+        //String put = s3api.putObjectFromFile("wangjiyou","timg1.jpg","D:\\timg.jpg");
+        //System.out.println(put);
+//        String setkeyacl = s3api.updateKeyAcl("wangjiyou", "timg.jpg", "public-read");
+//        System.out.println(setkeyacl);
+        
+        //put string
+        //String putString = s3api.putObjectFromString("wangjiyou","bb.txt","wangjiyou hahahahhahaha");
+        //System.out.println(putString);
+        
+        //set bucket acl
+        //String setbucketacl = s3api.updateBucketAcl("wangjiyou",  "public-read");
+        //System.out.println("setbucketacl:"+setbucketacl);
+        
+        //set key acl
+        //String setkeyacl = s3api.updateKeyAcl("wangjiyou", "bb.txt", "public-read");
+        //System.out.println(setkeyacl);
         
         //String delete = s3api.deleteBucket("course-pdf");
         //System.out.println(delete);
@@ -25,8 +49,8 @@ public class Test {
         //String k1 = key;//key.replaceAll("\\+", "%20");
         //String setbucketacl = s3api.updateBucketAcl("wangjiyou",  "public-read");
         //System.out.println("setbucketacl:"+setbucketacl);
-        String put = s3api.putObjectFromFile("test","web1111.html","D:\\web.html");
-        System.out.println(put);
+        //String put = s3api.putObjectFromFile("test","web1111.html","D:\\web.html");
+        //System.out.println(put);
         //String setkeyacl = s3api.updateKeyAcl("", "timg.jpg", "public-read");
         //System.out.println(setkeyacl);
         //int a = s3api.IsExsit("HEAD", "code","timg.jpg");
@@ -46,21 +70,42 @@ public class Test {
         System.out.println("setbucketacl:"+setbucketacl);
      */  
         //http://106.2.24.17/video_source
+        //init mysql api
+        //http://106.2.24.17:8000/video_source 为mysql api服务器固定地址
         SpeedyCloudS3 sqlapi = new SpeedyCloudS3("http://106.2.24.17:8000/video_source","","");
-        String url = "http://oss-cn-beijing.speedycloud.org/video/ssss.mov";
+        
+        /*
+                      参数：
+        url: 已上传到对象存储的对象的ur了（必填）
+        address: 房源的地址
+        bucket: 目标桶
+        host: 目标桶的host
+    	返回值：
+        200： {"source_id": "404dbfe2-d66a-11e7-a00b-000c29b58aad", "status": "Success"}
+         * */
+        String url = "http://oss-cn-beijing.speedycloud.org/video/test1.mp4";
         String address="";
         String bucket="video";
         String host = "oss-cn-beijing.speedycloud.org";
-        //String init = sqlapi.InitMysql("");
         String init = sqlapi.InitMysql( url, address,  bucket, host);
         System.out.println(init);
         
+        
+        //转码
+        //http://106.2.24.17:8000/transcode 为转码服务器固定地址
         SpeedyCloudS3 trans = new SpeedyCloudS3("http://106.2.24.17:8000/transcode","","");
-        String transret=trans.Transcode(init, bucket,host,"480P1,480P2,720P", "");
+        /*
+         *     参数：
+        init: 初始化mysql api的返回值
+        bucket: 目标桶
+        host: 目标桶的host
+        resolutions: 分辨率，多个用“，”分隔，例如：480P1,480P2,720P
+        callback_url: 回调url
+        //source_id: 上个接口返回的source_id
+         * 
+         * */
+        String transret=trans.Transcode(init, bucket,host,"480P1,480P2,720P", "106.2.24.10:8080");
         System.out.println(transret);
-//        JSONObject jsonObject = new JSONObject(jsonContent);
-//        String str1 = jsonObject.getString("hello");
-//        String str2 = jsonObject.getString("abc");
         
     }
 }
