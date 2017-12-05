@@ -11,7 +11,7 @@ class Create_Header{
     }
     function create_sign_str($http_method, $url, $content_md5, $content_type, $params,$canonicalized_amz_headers) {
         date_default_timezone_set("UTC");
-        $http_header_date = sprintf("%s%s",date("D, d M Y h:i:s "),"GMT");
+        $http_header_date = sprintf("%s%s",date("D, d M Y H:i:s "),"GMT");
         $sign_param_list = array($http_method, $content_md5, $content_type,$http_header_date);
         if($canonicalized_amz_headers) {
             array_push($sign_param_list, $canonicalized_amz_headers);
@@ -42,7 +42,7 @@ class Create_Header{
     }
     function generate_headers($method, $path, $params) {
         date_default_timezone_set("UTC");
-        $request_date = date("D, d M Y h:i:s ")."GMT";
+        $request_date = date("D, d M Y H:i:s ")."GMT";
         $sign = $this->create_sign($method, $path, $params);
         $authorization = "AWS"." ".$this->access_key.":".trim($sign);
         $header_data = array("Date"=>$request_date, "Authorization"=>$authorization);
