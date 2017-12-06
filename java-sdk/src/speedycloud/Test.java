@@ -21,8 +21,8 @@ public class Test {
         //System.out.println(list);
 
         //put file
-        //String put = s3api.putObjectFromFile("wangjiyou","timg1.jpg","D:\\timg.jpg");
-        //System.out.println(put);
+        String put = s3api.putObjectFromFile("wangjiyou","timg1.jpg","D:\\timg.jpg");
+        System.out.println(put);
 //        String setkeyacl = s3api.updateKeyAcl("wangjiyou", "timg.jpg", "public-read");
 //        System.out.println(setkeyacl);
         
@@ -72,43 +72,43 @@ public class Test {
         //http://106.2.24.17/video_source
         //init mysql api
         //http://106.2.24.17:8000/video_source 为mysql api服务器固定地址
-        SpeedyCloudS3 sqlapi = new SpeedyCloudS3("http://106.2.24.17:8000/video_source","","");
-        
-        /*
-                      参数：
-        url: 已上传到对象存储的对象的ur了（必填）
-        address: 房源的地址
-        bucket: 目标桶
-        host: 目标桶的host
-    	返回值：
-        200： {"source_id": "404dbfe2-d66a-11e7-a00b-000c29b58aad", "status": "Success"}
-         * */
-        String url = "http://oss-cn-beijing.speedycloud.org/centaline/paranora.mp4";
-        String address="";
-        String bucket="centaline";
-        String host = "oss-cn-beijing.speedycloud.org";
-        String accesskey = "24C30741003ADDCF5A3647F323FFCEEE";
-        String secretkey = "8a6b964b53a870b10f71d85a61a7632a2a813eab60e475fbd5746aab0c233fff";
-        String init = sqlapi.InitMysql( url, address,  bucket, host,accesskey,secretkey);
-        System.out.println(init);
-        
-        
-        //转码
-        //http://106.2.24.17:8000/transcode 为转码服务器固定地址
-        SpeedyCloudS3 trans = new SpeedyCloudS3("http://106.2.24.17:8000/transcode","","");
-        /*
-         *     参数：
-        init: 初始化mysql api的返回值
-        bucket: 目标桶
-        host: 目标桶的host
-        resolutions: 分辨率，多个用“，”分隔，例如：480P1,480P2,720P
-        callback_url: 回调url
-        //source_id: 上个接口返回的source_id
-         * 
-         * */
-
-        String transret=trans.Transcode(init, bucket,host,"480P1,480P2,720P", "106.2.24.10:8080",accesskey,secretkey);
-        System.out.println(transret);
+//        SpeedyCloudS3 sqlapi = new SpeedyCloudS3("http://106.2.24.17:8000/video_source","","");
+//        
+//        /*
+//                      参数：
+//        url: 已上传到对象存储的对象的ur了（必填）
+//        address: 房源的地址
+//        bucket: 目标桶
+//        host: 目标桶的host
+//    	返回值：
+//        200： {"source_id": "404dbfe2-d66a-11e7-a00b-000c29b58aad", "status": "Success"}
+//         * */
+//        String url = "http://oss-cn-beijing.speedycloud.org/centaline/paranora.mp4";
+//        String address="";
+//        String bucket="centaline";
+//        String host = "oss-cn-beijing.speedycloud.org";
+//        String accesskey = "24C30741003ADDCF5A3647F323FFCEEE";
+//        String secretkey = "8a6b964b53a870b10f71d85a61a7632a2a813eab60e475fbd5746aab0c233fff";
+//        String init = sqlapi.InitMysql( url, address,  bucket, host,accesskey,secretkey);
+//        System.out.println(init);
+//        
+//        
+//        //转码
+//        //http://106.2.24.17:8000/transcode 为转码服务器固定地址
+//        SpeedyCloudS3 trans = new SpeedyCloudS3("http://106.2.24.17:8000/transcode","","");
+//        /*
+//         *     参数：
+//        init: 初始化mysql api的返回值
+//        bucket: 目标桶
+//        host: 目标桶的host
+//        resolutions: 分辨率，多个用“，”分隔，例如：480P1,480P2,720P
+//        callback_url: 回调url
+//        //source_id: 上个接口返回的source_id
+//         * 
+//         * */
+//
+//        String transret=trans.Transcode(init, bucket,host,"480P1,480P2,720P", "106.2.24.10:8080",accesskey,secretkey);
+//        System.out.println(transret);
         
     }
 }

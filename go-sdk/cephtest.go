@@ -16,7 +16,7 @@ func main() {
 	logger.SetConsole(true)
 	logger.SetRollingDaily(logdir, "go-sdk.log")
 	logger.SetLevel(logger.DEBUG)
-	create_bucket()
+	//create_bucket()
 	//put_file_small()
 	//put_file_big()
 	//put_content()
@@ -25,7 +25,7 @@ func main() {
 	//copy_object()
 	//delete_object()
 	//viewacl()
-	//modifyacl()
+	modifyacl("/wangjiyou/bb.txt?acl", 1)
 	//bucketlistandsetacl()
 	//bucketlist()
 	//parse_xml()
@@ -267,9 +267,9 @@ func modifyacl(url string, index int) {
 	etag.Etag = map[string]string{}
 	multiUpload := MultipartUpload{}
 
-	//api := AbstractS3API{"http://cos.speedycloud.org", "5C0FA427C421219C0D67FF372AB71784", "d519b8b1a9c0cc51100ccff69a3f574c87ba2969ab7f8a8f30d243a8d5d7d69b",
-	//	header, multiUpload, etag, nil, 0}
-	api := AbstractS3API{"http://cos.speedycloud.org", "28DDFEB01FD001BDE491F4C89401347C", "e05df3292e2ee10f75bba30b826042bcba48bc76f74cc1fd3d1f04425a7a5ec1",
+	ak := "8ECF99788044FA255AF79DD05451C450"
+	sk := "df235c5664509dbe9c4971cdc7119ba3eb0228f1dae44a5e2df5cec378955b26"
+	api := AbstractS3API{"http://118.119.254.216", ak, sk,
 		header, multiUpload, etag, nil, 0, ""}
 	api.SetHeader("Sc-Resp-Content-Type", "application/json")
 	api.SetHeader("Accept-Encoding", "")

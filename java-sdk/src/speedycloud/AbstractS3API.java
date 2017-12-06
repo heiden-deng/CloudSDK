@@ -134,8 +134,12 @@ public class AbstractS3API {
                 content += line;
             }
             reader.close();
+            //System.out.println(httpURLConnection.getResponseCode());
+            int code= httpURLConnection.getResponseCode();
             httpURLConnection.disconnect();
-            return content;
+            return String.valueOf(code);
+            
+            //return content;
         } catch (IOException e) {
             return e.getMessage();
         }
