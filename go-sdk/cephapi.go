@@ -177,6 +177,7 @@ func (api *AbstractS3API) createSignString(requestMethod string, contentMd5 stri
 
 func (api *AbstractS3API) createSign(requestMethod string, contentMd5 string, contentType string, requestDate string, url string, contentLength string) string {
 	signString := api.createSignString(requestMethod, contentMd5, contentType, requestDate, url, contentLength)
+	fmt.Println("signString:", signString)
 	mac := hmac.New(sha1.New, []byte(api.SecretKey))
 	mac.Write([]byte(signString))
 	return base64.StdEncoding.EncodeToString(mac.Sum(nil))
@@ -414,6 +415,7 @@ func (api *AbstractS3API) _Do(url string, method string, _content string, isfile
 	request.ContentLength = contentLength
 	request.Header.Set("Date", requestDate)
 	sign := api.createSign(method, "", "", requestDate, url, strsize)
+	fmt.Println("sign:", sign)
 	request.Header.Set("Authorization", "AWS "+api.AccessKey+":"+sign)
 	request.Header.Set("Connection", "close")
 	if len(strsize) != 0 {

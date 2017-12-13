@@ -16,7 +16,7 @@ func main() {
 	logger.SetConsole(true)
 	logger.SetRollingDaily(logdir, "go-sdk.log")
 	logger.SetLevel(logger.DEBUG)
-	//create_bucket()
+	create_bucket()
 	//put_file_small()
 	//put_file_big()
 	//put_content()
@@ -25,7 +25,7 @@ func main() {
 	//copy_object()
 	//delete_object()
 	//viewacl()
-	modifyacl("/wangjiyou/bb.txt?acl", 1)
+	//modifyacl("/wangjiyou/bb.txt?acl", 1)
 	//bucketlistandsetacl()
 	//bucketlist()
 	//parse_xml()
@@ -455,8 +455,9 @@ func create_bucket() {
 	etag := Etagmap{} //
 	etag.Etag = map[string]string{}
 	multiUpload := MultipartUpload{}
-	sk := "df235c5664509dbe9c4971cdc7119ba3eb0228f1dae44a5e2df5cec378955b27"
-	api := AbstractS3API{"http://103.235.221.75", "8ECF99788044FA255AF79DD05451C451", sk,
+	ak := "5C0FA427C421219C0D67FF372AB71784"
+	sk := "d519b8b1a9c0cc51100ccff69a3f574c87ba2969ab7f8a8f30d243a8d5d7d69b"
+	api := AbstractS3API{"http://oss-cn-beijing.speedycloud.org", ak, sk,
 		header, multiUpload, etag, nil, 0, ""}
 	api.SetHeader("x-amz-acl", "public-read")
 	var limit int64
@@ -464,7 +465,7 @@ func create_bucket() {
 	api.SetLimitValue(limit)
 	isfile := false
 
-	osfile := "/wangjiyou"
+	osfile := "/wangjiyou-test"
 	_, content, err := api.Do(osfile, "PUT", "", isfile)
 	if err != nil {
 		fmt.Println("PUT err:", err, "content:", content)

@@ -41,18 +41,32 @@ public class transfer {
 		this.callback_url = callback_url;
 	}
 
-	public String getSource_id() {
-		return source_id;
-	}
 
-	public void setSource_id(String source_id) {
-		this.source_id = source_id;
-	}
 
+	private String initresult;
 	private String bucket;
 	private String host;
 	private String resolutions;
 	private String callback_url;
-	private String source_id;
+	private String accesskey;
+	private String secretkey;
+	//Transcode(String initresult,String bucket,String host,String resolutions,String callback_url,String accesskey,String secretkey)
+	public transfer(String initresult,String bucket,String host,String resolutions,String callback_url,String accesskey,String secretkey) {
+		this.initresult = initresult;
+		this.bucket = bucket;
+		this.host = host;
+		this.resolutions = resolutions;
+		this.callback_url = callback_url;
+		this.accesskey = accesskey;
+		this.secretkey = secretkey;
+	}
+	
+  //SpeedyCloudS3 trans = new SpeedyCloudS3("http://106.2.24.17:8000/transcode","","");
+  //String transret=trans.Transcode(init, bucket,host,"480P1,480P2,720P", "106.2.24.10:8080",accesskey,secretkey);
+    public String TransferApi(String transurl) throws Exception {
+    	  SpeedyCloudS3 trans = new SpeedyCloudS3(transurl,"","");
+    	  String transret=trans.Transcode(initresult, bucket,host,resolutions, callback_url,accesskey,secretkey);
+    	  return transret;
+    }
 
 }

@@ -5,9 +5,15 @@ import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
 public class SpeedyCloudS3 extends AbstractS3API {
+    private String host;
+    private String access_key;
+    private String secret_key;
 
     public SpeedyCloudS3(String host,String access_key, String secret_key) {
         super(host,access_key, secret_key);
+    	this.host = host;
+        this.access_key = access_key;
+        this.secret_key = secret_key;
     }
 
     public String list(String bucket) {
@@ -124,5 +130,39 @@ public class SpeedyCloudS3 extends AbstractS3API {
         return this.requestInitMysql("POST", jsonObject1.toString());
     }
     
+    public String PutTranscode(String bucket, String key, String path,String houseaddress,String resolutions,String callback_url) throws Exception {
+    	String code = putObjectFromFile(bucket,key,path);
+    	System.out.println("put file "+code);
+    	if(code.equals("200")) {
+    		String url= host+"/"+bucket+"/"+key;
+    		String initmysqlhost = host.substring("http://".length());
+    		String msg = "url:"+url+" houseaddress:"+houseaddress+" bucket:"+bucket+" initmysqlhost:"+initmysqlhost;
+    		System.out.println(msg);
+    		String init = InitMysqlApi(url,houseaddress,bucket,initmysqlhost,access_key,secret_key);
+    		System.out.println(init);
+    		JSONObject jsonObject = new JSONObject(init);
+    		String status = jsonObject.getString("status");
+    		if(status.equals("Success")) {
+    			return Transfer(init,bucket,initmysqlhost,resolutions,callback_url);
+    		}else {
+    			return init;
+    		}
+    	}else {
+    		return code;
+    	}    	
+    }
     
+    public String InitMysqlApi(String url,String houseaddress,String bucket,String host,String accesskey,String secretkey) throws Exception {
+        video_source sqlapi = new video_source(host, url,houseaddress,  bucket, accesskey,secretkey);
+        String init = sqlapi.InitMysqlApi("http://106.2.24.17:8000/video_source");
+		return init;
+    }
+
+    
+    public String Transfer(String init,String bucket,String host,String resolutions,String callback_url ) throws Exception {
+    	//String initresult,String bucket,String host,String resolutions,String callback_url,String accesskey,String secretkey
+    	transfer trans = new transfer(init,bucket,host,resolutions,callback_url,access_key,secret_key);
+    	String ret = trans.TransferApi("http://106.2.24.17:8000/transcode");
+    	return ret;
+    }
 }
