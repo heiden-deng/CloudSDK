@@ -121,6 +121,8 @@ public class Test {
         		    houseaddress：房源地址
         			resolutions: 分辨率，多个用“，”分隔，例如：480P1,480P2,720P
         			callback_url: 回调url
+        			watermark_path:水印图片url。 //"http://djaksdjak/a.jpg"
+					watermark_position: 水印位置//"left_up" "right_up" "left_down" "right_down" "center"
     	 * 
     	 * 
     	 * */
@@ -134,9 +136,12 @@ public class Test {
     	String houseaddress = "";
     	String resolutions = "480P1,480P2,720P";
     	String callback_url = "http://106.2.24.10:8080";
+    	String watermark_path = "http://oss-cn-beijing.speedycloud.org/test/zhongyuan_water.png";
+    	String watermark_position = "center";
     	
-    	//String ret = s3api.PutTranscode("wangjiyou", "fuckjiji.mp4", "D:\\fuckjiji.mp4","shanghai city","480P1,480P2,720P", "106.2.24.10:8080");
-    	String ret = s3api.PutTranscode(bucket, key, localfilepath,houseaddress,resolutions, callback_url);
+    	//String ret = s3api.PutTranscode("wangjiyou", "fuckjiji.mp4", "D:\\fuckjiji.mp4","shanghai city","480P1,480P2,720P", "106.2.24.10:8080",watermark_path,watermark_position);
+    	String ret = s3api.PutTranscode(bucket, key, localfilepath,houseaddress,resolutions, callback_url,watermark_path,watermark_position);
+    	System.out.println("======================");
     	System.out.println(ret);
         
     }

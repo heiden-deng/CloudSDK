@@ -115,7 +115,7 @@ public class SpeedyCloudS3 extends AbstractS3API {
         //source_id: 上个接口返回的source_id
      * 
      * */
-    public String Transcode(String initresult,String bucket,String host,String resolutions,String callback_url,String accesskey,String secretkey) throws JSONException {
+    public String Transcode(String initresult,String bucket,String host,String resolutions,String callback_url,String accesskey,String secretkey,String watermark_path,String watermark_position) throws JSONException {
     	JSONObject jsonObject = new JSONObject(initresult);
     	
         JSONObject jsonObject1 = new JSONObject();  
@@ -126,11 +126,13 @@ public class SpeedyCloudS3 extends AbstractS3API {
         jsonObject1.put("source_id", jsonObject.getString("source_id"));
         jsonObject1.put("access_key", accesskey);
         jsonObject1.put("secret_key", secretkey);
+        jsonObject1.put("watermark_path", watermark_path);
+        jsonObject1.put("watermark_position", watermark_position);
         System.out.println(jsonObject1.toString());  
         return this.requestInitMysql("POST", jsonObject1.toString());
     }
     
-    public String PutTranscode(String bucket, String key, String path,String houseaddress,String resolutions,String callback_url) throws Exception {
+    public String PutTranscode(String bucket, String key, String path,String houseaddress,String resolutions,String callback_url,String watermark_path,String watermark_position) throws Exception {
     	String code = putObjectFromFile(bucket,key,path);
     	System.out.println("put file "+code);
     	if(code.equals("200")) {
@@ -143,7 +145,7 @@ public class SpeedyCloudS3 extends AbstractS3API {
     		JSONObject jsonObject = new JSONObject(init);
     		String status = jsonObject.getString("status");
     		if(status.equals("Success")) {
-    			return Transfer(init,bucket,initmysqlhost,resolutions,callback_url);
+    			return Transfer(init,bucket,initmysqlhost,resolutions,callback_url,watermark_path,watermark_position);
     		}else {
     			return init;
     		}
@@ -159,10 +161,10 @@ public class SpeedyCloudS3 extends AbstractS3API {
     }
 
     
-    public String Transfer(String init,String bucket,String host,String resolutions,String callback_url ) throws Exception {
+    public String Transfer(String init,String bucket,String host,String resolutions,String callback_url,String watermark_path,String watermark_position ) throws Exception {
     	//String initresult,String bucket,String host,String resolutions,String callback_url,String accesskey,String secretkey
     	transfer trans = new transfer(init,bucket,host,resolutions,callback_url,access_key,secret_key);
-    	String ret = trans.TransferApi("http://106.2.24.17:8000/transcode");
+    	String ret = trans.TransferApi("http://106.2.24.17:8000/transcode",watermark_path,watermark_position);
     	return ret;
     }
 }

@@ -63,9 +63,9 @@ public class transfer {
 	
   //SpeedyCloudS3 trans = new SpeedyCloudS3("http://106.2.24.17:8000/transcode","","");
   //String transret=trans.Transcode(init, bucket,host,"480P1,480P2,720P", "106.2.24.10:8080",accesskey,secretkey);
-    public String TransferApi(String transurl) throws Exception {
+    public String TransferApi(String transurl,String watermark_path,String watermark_position) throws Exception {
     	  SpeedyCloudS3 trans = new SpeedyCloudS3(transurl,"","");
-    	  String transret=trans.Transcode(initresult, bucket,host,resolutions, callback_url,accesskey,secretkey);
+    	  String transret=trans.Transcode(initresult, bucket,host,resolutions, callback_url,accesskey,secretkey,watermark_path,watermark_position);
     	  return transret;
     }
 
