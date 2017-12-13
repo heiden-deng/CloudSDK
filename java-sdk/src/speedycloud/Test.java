@@ -110,11 +110,33 @@ public class Test {
 //        SpeedyCloudS3 trans = new SpeedyCloudS3("http://106.2.24.17:8000/transcode","","");
 //        String transret=trans.Transcode(init, bucket,host,"480P1,480P2,720P", "106.2.24.10:8080",accesskey,secretkey);
 //        System.out.println(transret);
+    	
+    	
+    	//最新转码示例
+    	/*
+    	 * 参数说明：
+    	 *         	bucket: 目标桶
+        		    key: 对象存储对象名称
+        		    localfilepath： 本地文件
+        		    houseaddress：房源地址
+        			resolutions: 分辨率，多个用“，”分隔，例如：480P1,480P2,720P
+        			callback_url: 回调url
+    	 * 
+    	 * 
+    	 * */
     	String ak = "5C0FA427C421219C0D67FF372AB71784";
     	String sk = "d519b8b1a9c0cc51100ccff69a3f574c87ba2969ab7f8a8f30d243a8d5d7d69b";
     	SpeedyCloudS3 s3api = new SpeedyCloudS3("http://oss-cn-beijing.speedycloud.org",ak,sk);
-    	//String put = s3api.putObjectFromFile("wangjiyou",k1,"D:\\Java\\jdk1.8.0_141\\LICENSE");
-    	String ret = s3api.PutTranscode("wangjiyou", "fuckjiji.mp4", "D:\\fuckjiji.mp4","shanghai city","480P1,480P2,720P", "106.2.24.10:8080");
+    	
+    	String bucket = "wangjiyou";
+    	String key ="test.mp4";
+    	String localfilepath = "D:\\test.mp4";
+    	String houseaddress = "";
+    	String resolutions = "480P1,480P2,720P";
+    	String callback_url = "http://106.2.24.10:8080";
+    	
+    	//String ret = s3api.PutTranscode("wangjiyou", "fuckjiji.mp4", "D:\\fuckjiji.mp4","shanghai city","480P1,480P2,720P", "106.2.24.10:8080");
+    	String ret = s3api.PutTranscode(bucket, key, localfilepath,houseaddress,resolutions, callback_url);
     	System.out.println(ret);
         
     }
