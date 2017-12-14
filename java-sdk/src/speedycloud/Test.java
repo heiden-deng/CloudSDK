@@ -139,8 +139,8 @@ public class Test {
     	String watermark_path = "http://oss-cn-beijing.speedycloud.org/test/zhongyuan_water.png";
     	String watermark_position = "center";
     	
-    	//String ret = s3api.PutTranscode("wangjiyou", "fuckjiji.mp4", "D:\\fuckjiji.mp4","shanghai city","480P1,480P2,720P", "106.2.24.10:8080",watermark_path,watermark_position);
-    	String ret = s3api.PutTranscode(bucket, key, localfilepath,houseaddress,resolutions, callback_url,watermark_path,watermark_position);
+    	String ret = s3api.PutTranscode("wangjiyou", "fuckjiji.mp4", "D:\\fuckjiji.mp4","shanghai city","480P1,480P2,720P", "106.2.24.10:8080",watermark_path,watermark_position);
+    	//String ret = s3api.PutTranscode(bucket, key, localfilepath,houseaddress,resolutions, callback_url,watermark_path,watermark_position);
     	System.out.println("======================");
     	System.out.println(ret);
         

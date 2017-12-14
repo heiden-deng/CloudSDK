@@ -134,23 +134,31 @@ public class SpeedyCloudS3 extends AbstractS3API {
     
     public String PutTranscode(String bucket, String key, String path,String houseaddress,String resolutions,String callback_url,String watermark_path,String watermark_position) throws Exception {
     	String code = putObjectFromFile(bucket,key,path);
+        JSONObject jsonObject1 = new JSONObject();  
+        jsonObject1.put("source_id", "");  
+        jsonObject1.put("status", "error");
     	System.out.println("put file "+code);
     	if(code.equals("200")) {
     		String url= host+"/"+bucket+"/"+key;
     		String initmysqlhost = host.substring("http://".length());
-    		String msg = "url:"+url+" houseaddress:"+houseaddress+" bucket:"+bucket+" initmysqlhost:"+initmysqlhost;
-    		System.out.println(msg);
+    		//String msg = "url:"+url+" houseaddress:"+houseaddress+" bucket:"+bucket+" initmysqlhost:"+initmysqlhost;
+    		//System.out.println(msg);
     		String init = InitMysqlApi(url,houseaddress,bucket,initmysqlhost,access_key,secret_key);
     		System.out.println(init);
     		JSONObject jsonObject = new JSONObject(init);
     		String status = jsonObject.getString("status");
     		if(status.equals("Success")) {
-    			return Transfer(init,bucket,initmysqlhost,resolutions,callback_url,watermark_path,watermark_position);
+    			String ret = Transfer(init,bucket,initmysqlhost,resolutions,callback_url,watermark_path,watermark_position);
+    			if(ret.equals("success")) {
+    				return init;
+    			}else {
+    				return jsonObject1.toString();
+    			}
     		}else {
-    			return init;
+    			return jsonObject1.toString();
     		}
     	}else {
-    		return code;
+    		return jsonObject1.toString();
     	}    	
     }
     
