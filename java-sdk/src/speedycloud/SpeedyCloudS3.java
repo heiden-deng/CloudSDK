@@ -104,6 +104,10 @@ public class SpeedyCloudS3 extends AbstractS3API {
         System.out.println(jsonObject1.toString());  
         return this.requestInitMysql("POST", jsonObject1.toString());
     }
+    
+    public String TranscodeFinal(String initresult,String bucket,String host,String resolutions,String callback_url,String accesskey,String secretkey,String watermark_path,String watermark_position) throws JSONException {
+    	return "";
+    }
     /*
      * transcode
      * 
@@ -130,6 +134,55 @@ public class SpeedyCloudS3 extends AbstractS3API {
         jsonObject1.put("watermark_position", watermark_position);
         System.out.println(jsonObject1.toString());  
         return this.requestInitMysql("POST", jsonObject1.toString());
+    }
+    
+    public String PutTranscodeFinal(String bucket, String key, String path,String houseaddress,String resolutions,String callback_url,String watermark_path,String watermark_position) throws Exception {
+    	String code = putObjectFromFile(bucket,key,path);
+        JSONObject jsonObject1 = new JSONObject();  
+        jsonObject1.put("source_id", "");  
+        jsonObject1.put("status", "error");
+    	System.out.println("put file "+code);
+    	if(code.equals("200")) {
+    		String url= host+"/"+bucket+"/"+key;
+    		String initmysqlhost = host.substring("http://".length());
+            JSONObject data = new JSONObject();  
+            data.put("url", url);
+            data.put("address", houseaddress);
+            data.put("bucket", bucket);
+            data.put("host", initmysqlhost);
+            data.put("access_key", access_key);
+            data.put("secret_key", secret_key);
+            data.put("resolutions", resolutions);
+            data.put("callback_url", callback_url);
+            data.put("watermark_path", watermark_path);
+            data.put("watermark_position", watermark_position);
+    		return TranscodeFinal(data.toString());
+    	}else {
+    		return jsonObject1.toString();
+    	}    	
+    }
+    
+    public String InitMysqlApi(String url,String houseaddress,String bucket,String host,String accesskey,String secretkey) throws Exception {
+        video_source sqlapi = new video_source(host, url,houseaddress,  bucket, accesskey,secretkey);
+        String init = sqlapi.InitMysqlApi("http://106.2.24.17:8000/video_source");
+		return init;
+    }
+
+    
+    public String Transfer(String init,String bucket,String host,String resolutions,String callback_url,String watermark_path,String watermark_position ) throws Exception {
+    	//String initresult,String bucket,String host,String resolutions,String callback_url,String accesskey,String secretkey
+    	transfer trans = new transfer(init,bucket,host,resolutions,callback_url,access_key,secret_key);
+    	String ret = trans.TransferApi("http://106.2.24.17:8000/transcode",watermark_path,watermark_position);
+    	return ret;
+    }
+    
+    public String TranscodeFinal(String data) throws Exception {
+    	TranscodeFinal pfinal = new TranscodeFinal(data);
+        String init = pfinal.Process("http://106.2.24.17:8000/transcode_final");
+		return init;
+    }
+    public String FinalProcess(String data)  throws Exception { 
+        return this.requestInitMysql("POST", data);
     }
     
     public String PutTranscode(String bucket, String key, String path,String houseaddress,String resolutions,String callback_url,String watermark_path,String watermark_position) throws Exception {
@@ -160,19 +213,5 @@ public class SpeedyCloudS3 extends AbstractS3API {
     	}else {
     		return jsonObject1.toString();
     	}    	
-    }
-    
-    public String InitMysqlApi(String url,String houseaddress,String bucket,String host,String accesskey,String secretkey) throws Exception {
-        video_source sqlapi = new video_source(host, url,houseaddress,  bucket, accesskey,secretkey);
-        String init = sqlapi.InitMysqlApi("http://106.2.24.17:8000/video_source");
-		return init;
-    }
-
-    
-    public String Transfer(String init,String bucket,String host,String resolutions,String callback_url,String watermark_path,String watermark_position ) throws Exception {
-    	//String initresult,String bucket,String host,String resolutions,String callback_url,String accesskey,String secretkey
-    	transfer trans = new transfer(init,bucket,host,resolutions,callback_url,access_key,secret_key);
-    	String ret = trans.TransferApi("http://106.2.24.17:8000/transcode",watermark_path,watermark_position);
-    	return ret;
     }
 }

@@ -11,9 +11,15 @@ public class Test {
         //SpeedyCloudS3 s3api = new SpeedyCloudS3("http://118.119.254.216","8ECF99788044FA255AF79DD05451C450","df235c5664509dbe9c4971cdc7119ba3eb0228f1dae44a5e2df5cec378955b26");
     	//SpeedyCloudS3 s3api = new SpeedyCloudS3("8ECF99788044FA255AF79DD05451C451","df235c5664509dbe9c4971cdc7119ba3eb0228f1dae44a5e2df5cec378955b27");
     	//SpeedyCloudS3 s3api = new SpeedyCloudS3("8ECF99788044FA255AF79DD05451C450","df235c5664509dbe9c4971cdc7119ba3eb0228f1dae44a5e2df5cec378955b26");
+//    	String host = "http://oss-cn-beijing.speedycloud.org";
+//    	String ak= "5C0FA427C421219C0D67FF372AB71784";
+//    	String sk = "d519b8b1a9c0cc51100ccff69a3f574c87ba2969ab7f8a8f30d243a8d5d7d69b";
+    	//String ak = "24C30741003ADDCF5A3647F323FFCEEE";
+    	//String sk = "8a6b964b53a870b10f71d85a61a7632a2a813eab60e475fbd5746aab0c233fff";
+    	//SpeedyCloudS3 s3api = new SpeedyCloudS3(host,ak,sk);
         
         //create bucket 
-        //String createBucket = s3api.createBucket("wangjiyou");
+        //String createBucket = s3api.createBucket("bucket4");
         //System.out.println(createBucket);
         
         //list bucket
@@ -21,7 +27,7 @@ public class Test {
         //System.out.println(list);
 
         //put file
-        //String put = s3api.putObjectFromFile("wangjiyou","timg1.jpg","D:\\timg.jpg");
+        //String put = s3api.putObjectFromFile("wangjiyou","timg1-test.jpg","D:\\timg.jpg");
         //System.out.println(put);
 //        String setkeyacl = s3api.updateKeyAcl("wangjiyou", "timg.jpg", "public-read");
 //        System.out.println(setkeyacl);
@@ -38,8 +44,10 @@ public class Test {
         //String setkeyacl = s3api.updateKeyAcl("wangjiyou", "bb.txt", "public-read");
         //System.out.println(setkeyacl);
         
-        //String delete = s3api.deleteBucket("course-pdf");
-        //System.out.println(delete);
+    	//String deleteobj = s3api.deleteKey("bucket12", "ddf");
+    	//System.out.println(deleteobj);
+//        String delete = s3api.deleteBucket("bucket12");
+//        System.out.println(delete);
         //String createBucket = s3api.createBucket("wangjiyou");
         //System.out.println(createBucket);
         //String putObjectFromFile(String bucket, String key, String path)
@@ -126,8 +134,10 @@ public class Test {
     	 * 
     	 * 
     	 * */
-    	String ak = "5C0FA427C421219C0D67FF372AB71784";
-    	String sk = "d519b8b1a9c0cc51100ccff69a3f574c87ba2969ab7f8a8f30d243a8d5d7d69b";
+    	
+    	String ak = "24C30741003ADDCF5A3647F323FFCEEE";
+    	String sk = "8a6b964b53a870b10f71d85a61a7632a2a813eab60e475fbd5746aab0c233fff";
+    	//http://oss-cn-beijing.speedycloud.org/centaline/paranora-A.mp4
     	SpeedyCloudS3 s3api = new SpeedyCloudS3("http://oss-cn-beijing.speedycloud.org",ak,sk);
     	
     	String bucket = "wangjiyou";
@@ -136,13 +146,13 @@ public class Test {
     	String houseaddress = "";
     	String resolutions = "480P1,480P2,720P";
     	String callback_url = "http://106.2.24.10:8080";
-    	String watermark_path = "http://oss-cn-beijing.speedycloud.org/test/zhongyuan_water.png";
+
+    	String watermark_path =  "http://oss-cn-beijing.speedycloud.org/centaline/zhongyuan_water.png";
     	String watermark_position = "center";
     	
-    	String ret = s3api.PutTranscode("wangjiyou", "fuckjiji.mp4", "D:\\fuckjiji.mp4","shanghai city","480P1,480P2,720P", "106.2.24.10:8080",watermark_path,watermark_position);
-    	//String ret = s3api.PutTranscode(bucket, key, localfilepath,houseaddress,resolutions, callback_url,watermark_path,watermark_position);
+    	String ret = s3api.PutTranscodeFinal("centaline", "wangjiyou-test.mp4", "D:\\fuckjiji.mp4","shanghai city","480P1,480P2,720P", "106.2.24.10:8080",watermark_path,watermark_position);
+    	//String ret = s3api.PutTranscode("centaline", "wangjiyou-test.mp4", "D:\\fuckjiji.mp4","shanghai city","480P1,480P2,720P", "106.2.24.10:8080",watermark_path,watermark_position);
     	System.out.println("======================");
     	System.out.println(ret);
-        
     }
 }
