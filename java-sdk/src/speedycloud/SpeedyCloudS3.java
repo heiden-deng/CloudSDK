@@ -82,6 +82,10 @@ public class SpeedyCloudS3 extends AbstractS3API {
         return this.requestIsExsit(method, String.format("/%s/%s", bucket, key));
     }
     
+    public SCResult putObjectFromFileMulti(String bucket, String key, String path) {
+        return this.putKeyFromFileMulti("PUT", String.format("/%s/%s", bucket, key), path);
+    }
+    
 /*
  *     参数：
         url: 已上传到对象存储的对象的ur了（必填）
@@ -137,12 +141,13 @@ public class SpeedyCloudS3 extends AbstractS3API {
     }
     
     public String PutTranscodeFinal(String bucket, String key, String path,String houseaddress,String resolutions,String callback_url,String watermark_path,String watermark_position) throws Exception {
-    	String code = putObjectFromFile(bucket,key,path);
+    	SCResult scresult = putObjectFromFileMulti(bucket,key,path);
         JSONObject jsonObject1 = new JSONObject();  
-        jsonObject1.put("source_id", "");  
-        jsonObject1.put("status", "error");
-    	System.out.println("put file "+code);
-    	if(code.equals("200")) {
+        jsonObject1.put("sourceId", "");  
+        jsonObject1.put("msg", scresult.getMsg());
+        jsonObject1.put("code", String.valueOf(scresult.getCode()));
+    	System.out.println("put etag:"+scresult.geteTag());
+    	if(scresult.getCode()==200) {
     		String url= host+"/"+bucket+"/"+key;
     		String initmysqlhost = host.substring("http://".length());
             JSONObject data = new JSONObject();  
@@ -156,8 +161,14 @@ public class SpeedyCloudS3 extends AbstractS3API {
             data.put("callback_url", callback_url);
             data.put("watermark_path", watermark_path);
             data.put("watermark_position", watermark_position);
-    		return TranscodeFinal(data.toString());
+    		String ret = TranscodeFinal(data.toString());
+    		JSONObject retjsonObject = new JSONObject(ret);
+    		jsonObject1.put("sourceId",retjsonObject.getString("source_id"));
+    		jsonObject1.put("eTag",scresult.geteTag());
+    		jsonObject1.put("msg", "");
+    		return jsonObject1.toString();
     	}else {
+    		jsonObject1.put("eTag","");
     		return jsonObject1.toString();
     	}    	
     }

@@ -306,9 +306,107 @@ public class AbstractS3API {
             return e.getMessage();
         }
     }    
+    
+    
+    private SCResult putDataMulti(String method, String url, String data, String type) {
+    	SCResult scresult = new SCResult();
+        try {
+            URL localURL = new URL(this.host + url);
+            URLConnection connection = localURL.openConnection();
+            HttpURLConnection httpURLConnection = (HttpURLConnection) connection;
+            for (Map.Entry<String, String> entry : this.metadata.entrySet()) {
+                httpURLConnection.setRequestProperty(entry.getKey(), entry.getValue());
+            }
+            httpURLConnection.setRequestMethod(method);
+            httpURLConnection.setDoOutput(true);
+            SimpleDateFormat dateFormat = new SimpleDateFormat("EEE, dd MMM yyyy HH:mm:ss zzz",Locale.ENGLISH);
+            dateFormat.setTimeZone(TimeZone.getTimeZone("GMT"));
+            Date date = new Date();
+            String requestDate = dateFormat.format(date);
+            httpURLConnection.setRequestProperty("Date", requestDate);
+            try {
+                httpURLConnection.setRequestProperty("Authorization", "AWS " + this.access_key + ":" + createSign(method, "", "", requestDate, url));
+            } catch (InvalidKeyException e) {
+            	scresult.setMsg(e.getMessage());
+            	scresult.setCode(400);
+                return scresult;
+            } catch (NoSuchAlgorithmException e) {
+            	scresult.setMsg(e.getMessage());
+            	scresult.setCode(400);
+                return scresult;
+            } finally {
+
+            }
+            httpURLConnection.setConnectTimeout(10000);
+            long contentLength = 0;
+
+            if (type.equals("file")) {
+                File file = new File(data);
+                if (file.length() > 1024 * 1024 * 1024) {
+                	scresult.setMsg("File is bigger than 1G!");
+                	scresult.setCode(400);
+                    return scresult;                    
+                }
+                contentLength = file.length();
+                httpURLConnection.setRequestProperty("Content-Length", Long.toString(contentLength));
+                FileInputStream fileInputStream = new FileInputStream(data);
+                byte[] buffer = new byte[1024];
+                int length = -1;
+              
+                httpURLConnection.setRequestProperty("Connection", "Close");
+                DataOutputStream dataOutputStream = new DataOutputStream(httpURLConnection.getOutputStream());
+                while ((length = fileInputStream.read(buffer)) != -1) {
+                    dataOutputStream.write(buffer, 0, length);
+                }
+                fileInputStream.close();
+                dataOutputStream.flush();
+                dataOutputStream.close();
+            } else {
+                byte[] requestStringBytes = data.getBytes();
+                contentLength = requestStringBytes.length;
+                httpURLConnection.setRequestProperty("Content-Length", Long.toString(contentLength));
+
+                OutputStream outputStream = httpURLConnection.getOutputStream();
+                outputStream.write(requestStringBytes);
+                outputStream.close();
+            }
+            BufferedReader reader = new BufferedReader(new InputStreamReader(httpURLConnection.getInputStream(), "utf-8"));
+            String content = "";
+            String line;
+            while ((line = reader.readLine()) != null) {
+                content += line;
+            }
+            reader.close();
+            //System.out.println(httpURLConnection.getResponseCode());
+            int code= httpURLConnection.getResponseCode();
+            httpURLConnection.disconnect();
+            Map<String, List<String>> map = httpURLConnection.getHeaderFields();
+            //String.valueOf(code);
+            if(code==200) {
+            	scresult.setCode(200);
+            	String etag = map.get("Etag").get(0);
+            	scresult.seteTag(etag.substring(1, etag.length()-1));
+                return scresult;
+            }else {
+            	scresult.setMsg(content);
+            	scresult.setCode(code);
+                return scresult;
+            }
+            
+            //return content;
+        } catch (IOException e) {
+        	scresult.setMsg(e.getMessage());
+        	scresult.setCode(400);
+            return scresult;
+        }
+    }
 
     public String putKeyFromFile(String method, String url, String path) {
         return putData(method, url, path, "file");
+    }
+    
+    public SCResult putKeyFromFileMulti(String method, String url, String path) {
+        return putDataMulti(method, url, path, "file");
     }
 
     public String putKeyFromString(String method, String url, String requestString) {
